@@ -51,7 +51,8 @@ public class Player : MonoBehaviour
     void Update () 
 	{
         HandleMovement();
-        HandleJump();   
+        HandleJump();
+        IsStuck();  
 	}
 
     private void HandleMovement() 
@@ -95,6 +96,15 @@ public class Player : MonoBehaviour
             return Direction.LEFT;
         }
         else return null;
+    }
+
+    //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
+    private void IsStuck()
+    {
+        if (TouchingWall(Direction.RIGHT) && TouchingWall(Direction.LEFT) && pBody.velocity.y == 0 && !isGroundedShortcut.isGrounded)
+        {
+            pBody.velocity =  -1 * Vector2.up * jumpVelocity;
+        }
     }
 
     /// <summary>
