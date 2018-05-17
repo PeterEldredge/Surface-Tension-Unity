@@ -30,8 +30,9 @@ public class Player : MonoBehaviour
     float movement;
 
     private enum Direction {
-        LEFT,
-        RIGHT
+        LEFT = -1,
+        RIGHT = 1,
+        IDLE = 0
     };
 
     private Direction direction;
@@ -44,16 +45,26 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update () 
 	{
-        HandleMovement();
+        // Get player input
+        float horizontalInput = Input.GetAxis("Horizontal") * moveSpeed;
+
+        // Move and animate character
+        HandleMovement(horizontalInput);
+        HandleAnimation(horizontalInput);
         HandleJump();
+
+        // Check if stuck
         IsStuck();  
 	}
 
-    private void HandleMovement() 
+    private void HandleAnimation(float movement)
     {
-        //Determinesif the player will move and at what speed
-        movement = Input.GetAxis("Horizontal") * moveSpeed;
+        Direction direction = GetDirection(movement);
+        GetComponent<Animator>().SetInteger("Direction", (int)direction);
+    }
 
+    private void HandleMovement(float movement) 
+    {
         //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
 
         // If moving away from wall or not jumping
@@ -82,14 +93,14 @@ public class Player : MonoBehaviour
         }
     }
 
-    private Direction? GetDirection(float movement) {
+    private Direction GetDirection(float movement) {
         if(movement > 0) {
             return Direction.RIGHT;
         }
         else if(movement < 0) {
             return Direction.LEFT;
         }
-        else return null;
+        else return Direction.IDLE;
     }
 
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player

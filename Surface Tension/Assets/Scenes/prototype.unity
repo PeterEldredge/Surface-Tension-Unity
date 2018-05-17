@@ -886,6 +886,11 @@ Prefab:
       propertyPath: lWallCheckShortcut
       value: 
       objectReference: {fileID: 238694624}
+    - target: {fileID: 212617651836218250, guid: 3411fe3093a12e1409be49293242fb7c,
+        type: 2}
+      propertyPath: m_FlipX
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3411fe3093a12e1409be49293242fb7c, type: 2}
   m_IsPrefabParent: 0
