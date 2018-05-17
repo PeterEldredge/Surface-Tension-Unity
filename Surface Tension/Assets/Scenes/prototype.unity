@@ -372,6 +372,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &238694624 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114466742337106220, guid: 3411fe3093a12e1409be49293242fb7c,
+    type: 2}
+  m_PrefabInternal: {fileID: 1525233080}
+  m_Script: {fileID: 11500000, guid: 60f076efb85f8cb498df22c3dce7ab8f, type: 3}
 --- !u!1 &277539573
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,6 +494,12 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &312983024 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114816482005635676, guid: 3411fe3093a12e1409be49293242fb7c,
+    type: 2}
+  m_PrefabInternal: {fileID: 1525233080}
+  m_Script: {fileID: 11500000, guid: 60f076efb85f8cb498df22c3dce7ab8f, type: 3}
 --- !u!1 &609594025
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,6 +700,12 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &939843709 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114246203194770590, guid: 3411fe3093a12e1409be49293242fb7c,
+    type: 2}
+  m_PrefabInternal: {fileID: 1525233080}
+  m_Script: {fileID: 11500000, guid: 04049d7e781aed84c83a253938f5237d, type: 3}
 --- !u!1 &1448854030
 GameObject:
   m_ObjectHideFlags: 0
@@ -848,6 +866,26 @@ Prefab:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 05bfe6b9f1fde43a3b27aa861bff1de2, type: 2}
+    - target: {fileID: 95517921205936988, guid: 3411fe3093a12e1409be49293242fb7c,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114206033879707088, guid: 3411fe3093a12e1409be49293242fb7c,
+        type: 2}
+      propertyPath: isGroundedShortcut
+      value: 
+      objectReference: {fileID: 939843709}
+    - target: {fileID: 114206033879707088, guid: 3411fe3093a12e1409be49293242fb7c,
+        type: 2}
+      propertyPath: rWallCheckShortcut
+      value: 
+      objectReference: {fileID: 312983024}
+    - target: {fileID: 114206033879707088, guid: 3411fe3093a12e1409be49293242fb7c,
+        type: 2}
+      propertyPath: lWallCheckShortcut
+      value: 
+      objectReference: {fileID: 238694624}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3411fe3093a12e1409be49293242fb7c, type: 2}
   m_IsPrefabParent: 0

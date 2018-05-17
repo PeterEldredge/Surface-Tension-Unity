@@ -21,11 +21,11 @@ public class Player : MonoBehaviour
     Rigidbody2D pBody;
 
     //Initializes shortcut to IsGrounded script
-    IsGrounded isGroundedShortcut;
+    public IsGrounded isGroundedShortcut;
 
     //Initializes shortcut to WallCheck script on both RightCheck and LeftCheck
-    WallCheck rWallCheckShortcut;
-    WallCheck lWallCheckShortcut;
+    public WallCheck rWallCheckShortcut;
+    public WallCheck lWallCheckShortcut;
 
     float movement;
 
@@ -39,12 +39,6 @@ public class Player : MonoBehaviour
     void Awake()
     {
         pBody = GetComponent<Rigidbody2D>();
-
-        //Is the player on the ground
-        isGroundedShortcut = GameObject.Find("GroundCheck").gameObject.GetComponent<IsGrounded>();
-
-        rWallCheckShortcut = GameObject.Find("RightCheck").GetComponent<WallCheck>();
-        lWallCheckShortcut = GameObject.Find("LeftCheck").GetComponent<WallCheck>();
     }
 
     // Update is called once per frame
