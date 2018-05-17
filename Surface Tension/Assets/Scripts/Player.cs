@@ -50,6 +50,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update () 
 	{
+        HandleMovement();
+        HandleJump();   
+	}
+
+    private void HandleMovement() 
+    {
         //Determinesif the player will move and at what speed
         movement = Input.GetAxis("Horizontal") * moveSpeed;
 
@@ -58,20 +64,14 @@ public class Player : MonoBehaviour
         // If moving away from wall or not jumping
         if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) || (isGroundedShortcut.isGrounded && !Input.GetButtonDown("Jump")))
         {
-            if ((Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.RIGHT && TouchingWall(Direction.RIGHT)) || (Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.LEFT && TouchingWall(Direction.LEFT)))
-            {
-                pBody.velocity = new Vector2(0, pBody.velocity.y);
-            } else
+            if (!(Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.RIGHT && TouchingWall(Direction.RIGHT)) || !(Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.LEFT && TouchingWall(Direction.LEFT)))
             {
                 pBody.velocity = new Vector2(movement, pBody.velocity.y);
             }
         }
-        else
-        {
-            pBody.velocity = new Vector2(0, pBody.velocity.y); //?
-        }  
+    }
 
-        //Jump
+    private void HandleJump() {
         if (Input.GetButtonDown("Jump") && isGroundedShortcut.isGrounded)
         {
             pBody.velocity = Vector2.up * jumpVelocity;
@@ -85,7 +85,7 @@ public class Player : MonoBehaviour
         {
             pBody.velocity += Vector2.up * Physics2D.gravity.y * (jumpMultiplyer) * Time.deltaTime;
         }
-	}
+    }
 
     private Direction? GetDirection(float movement) {
         if(movement > 0) {
