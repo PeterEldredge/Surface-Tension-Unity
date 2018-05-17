@@ -29,6 +29,13 @@ public class Player : MonoBehaviour
 
     float movement;
 
+    private enum Direction {
+        LEFT,
+        RIGHT
+    };
+
+    private Direction direction;
+
     void Awake()
     {
         pBody = GetComponent<Rigidbody2D>();
@@ -47,9 +54,11 @@ public class Player : MonoBehaviour
         movement = Input.GetAxis("Horizontal") * moveSpeed;
 
         //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
-        if ((movement > 0 && !rWallCheckShortcut.isNextToWall) || (movement < 0 && !lWallCheckShortcut.isNextToWall) || (isGroundedShortcut.isGrounded && !Input.GetButtonDown("Jump")))
+
+        // If moving away from wall or not jumping
+        if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) || (isGroundedShortcut.isGrounded && !Input.GetButtonDown("Jump")))
         {
-            if ((Input.GetButtonDown("Jump") && movement > 0 && rWallCheckShortcut.isNextToWall) || (Input.GetButtonDown("Jump") && movement < 0 && lWallCheckShortcut.isNextToWall))
+            if ((Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.RIGHT && TouchingWall(Direction.RIGHT)) || (Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.LEFT && TouchingWall(Direction.LEFT)))
             {
                 pBody.velocity = new Vector2(0, pBody.velocity.y);
             } else
@@ -77,4 +86,30 @@ public class Player : MonoBehaviour
             pBody.velocity += Vector2.up * Physics2D.gravity.y * (jumpMultiplyer) * Time.deltaTime;
         }
 	}
+
+    private Direction? GetDirection(float movement) {
+        if(movement > 0) {
+            return Direction.RIGHT;
+        }
+        else if(movement < 0) {
+            return Direction.LEFT;
+        }
+        else return null;
+    }
+
+    /// <summary>
+    /// If player is touching a wall, return what side it's on
+    /// </summary>
+    private bool TouchingWall(Direction direction)
+    {
+        if(direction.Equals(Direction.RIGHT) && rWallCheckShortcut.isNextToWall) {
+            return true;
+        }
+        else if(direction.Equals(Direction.LEFT) && lWallCheckShortcut.isNextToWall) {
+            return true;
+        }
+        else return false;
+    }
+
+    
 }
