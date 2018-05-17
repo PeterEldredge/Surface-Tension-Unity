@@ -61,6 +61,13 @@ public class Player : MonoBehaviour
     {
         Direction direction = GetDirection(movement);
         GetComponent<Animator>().SetInteger("Direction", (int)direction);
+        
+        if(direction.Equals(Direction.LEFT)) {
+            GetComponent<SpriteRenderer>().flipX = true;
+        }
+        else if(direction.Equals(Direction.RIGHT)) {
+            GetComponent<SpriteRenderer>().flipX = false;
+        }
     }
 
     private void HandleMovement(float movement) 
