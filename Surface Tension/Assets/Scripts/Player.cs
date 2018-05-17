@@ -27,15 +27,25 @@ public class Player : MonoBehaviour
     public WallCheck rWallCheckShortcut;
     public WallCheck lWallCheckShortcut;
 
-    float movement;
+    private float movement;
 
-    private enum Direction {
+    /// <summary>
+    /// Definition for direction player is facing
+    /// </summary>
+    public enum Direction {
         LEFT = -1,
-        RIGHT = 1,
-        IDLE = 0
+        RIGHT = 1
     };
 
-    private Direction direction;
+    /// <summary>
+    /// Direction player is currently facing
+    /// </summary>
+    public Direction direction;
+
+    /// <summary>
+    /// True if player is currently moving
+    /// </summary>
+    protected bool moving;
 
     void Awake()
     {
@@ -59,8 +69,11 @@ public class Player : MonoBehaviour
 
     private void HandleAnimation(float movement)
     {
-        Direction direction = GetDirection(movement);
+        direction = GetDirection(movement) ?? direction;
+        moving = GetDirection(movement) != null;
+
         GetComponent<Animator>().SetInteger("Direction", (int)direction);
+        GetComponent<Animator>().SetBool("Moving", moving);
         
         if(direction.Equals(Direction.LEFT)) {
             GetComponent<SpriteRenderer>().flipX = true;
@@ -100,14 +113,14 @@ public class Player : MonoBehaviour
         }
     }
 
-    private Direction GetDirection(float movement) {
+    private Direction? GetDirection(float movement) {
         if(movement > 0) {
             return Direction.RIGHT;
         }
         else if(movement < 0) {
             return Direction.LEFT;
         }
-        else return Direction.IDLE;
+        else return null;
     }
 
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
