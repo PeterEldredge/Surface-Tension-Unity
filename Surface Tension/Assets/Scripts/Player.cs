@@ -47,6 +47,8 @@ public class Player : MonoBehaviour
     /// </summary>
     protected bool moving;
 
+    private Respawn respawn;
+
     void Awake()
     {
         pBody = GetComponent<Rigidbody2D>();
@@ -62,6 +64,7 @@ public class Player : MonoBehaviour
         HandleMovement(horizontalInput);
         HandleAnimation(horizontalInput);
         HandleJump();
+        HandleRespawn();
 
         // Check if stuck
         IsStuck();  
@@ -146,5 +149,10 @@ public class Player : MonoBehaviour
         else return false;
     }
 
-    
+    // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
+    private void HandleRespawn()
+    {
+        respawn = GetComponent<Respawn>();
+        respawn.manualRespawn();
+    }
 }
