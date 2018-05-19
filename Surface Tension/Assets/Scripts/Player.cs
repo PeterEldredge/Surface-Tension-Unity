@@ -27,8 +27,6 @@ public class Player : MonoBehaviour
     public WallCheck rWallCheckShortcut;
     public WallCheck lWallCheckShortcut;
 
-    private float movement;
-
     /// <summary>
     /// Definition for direction player is facing
     /// </summary>
@@ -70,6 +68,10 @@ public class Player : MonoBehaviour
         IsStuck();  
 	}
 
+    /// <summary>
+    /// Animate player based on horizontal input
+    /// </summary>
+    /// <param name="movement">Horizontal input</param>
     private void HandleAnimation(float movement)
     {
         direction = GetDirection(movement) ?? direction;
@@ -86,6 +88,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Move player based on horizontal input
+    /// </summary>
+    /// <param name="movement">Horizontal input</param>
     private void HandleMovement(float movement) 
     {
         //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
@@ -100,6 +106,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Player jumps if conditions are met
+    /// </summary>
     private void HandleJump() {
         if (Input.GetButtonDown("Jump") && isGroundedShortcut.isGrounded)
         {
@@ -116,6 +125,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Returns direction of given movement
+    /// </summary>
+    /// <param name="movement">Player movement</param>
     private Direction? GetDirection(float movement) {
         if(movement > 0) {
             return Direction.RIGHT;
@@ -147,6 +160,14 @@ public class Player : MonoBehaviour
             return true;
         }
         else return false;
+    }
+
+    /// <summary>
+    /// Returns whether player is touching ground
+    /// </summary>
+    private bool TouchingGround() 
+    {
+        return isGroundedShortcut.isGrounded;
     }
 
     // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
