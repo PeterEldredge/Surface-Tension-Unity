@@ -66,6 +66,7 @@ public class Player : MonoBehaviour
 
         // Check if stuck
         IsStuck();  
+        TouchingGround();
 	}
 
     /// <summary>
@@ -97,7 +98,7 @@ public class Player : MonoBehaviour
         //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
 
         // If moving away from wall or not jumping
-        if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) || (isGroundedShortcut.isGrounded && !Input.GetButtonDown("Jump")))
+        if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) || (TouchingGround() && !Input.GetButtonDown("Jump")))
         {
             if (!(Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.RIGHT && TouchingWall(Direction.RIGHT)) || !(Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.LEFT && TouchingWall(Direction.LEFT)))
             {
@@ -110,7 +111,7 @@ public class Player : MonoBehaviour
     /// Player jumps if conditions are met
     /// </summary>
     private void HandleJump() {
-        if (Input.GetButtonDown("Jump") && isGroundedShortcut.isGrounded)
+        if (Input.GetButtonDown("Jump") && TouchingGround())
         {
             pBody.velocity = Vector2.up * jumpVelocity;
         }
@@ -142,7 +143,7 @@ public class Player : MonoBehaviour
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
     private void IsStuck()
     {
-        if (TouchingWall(Direction.RIGHT) && TouchingWall(Direction.LEFT) && pBody.velocity.y == 0 && !isGroundedShortcut.isGrounded)
+        if (TouchingWall(Direction.RIGHT) && TouchingWall(Direction.LEFT) && pBody.velocity.y == 0 && !TouchingGround())
         {
             pBody.velocity =  -1 * Vector2.up * jumpVelocity;
         }
@@ -167,7 +168,25 @@ public class Player : MonoBehaviour
     /// </summary>
     private bool TouchingGround() 
     {
-        return isGroundedShortcut.isGrounded;
+        // Get height of player sprite
+        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
+
+        // Calcualte bottom of player sprite
+        float playerBottom = GetComponent<BoxCollider2D>().bounds.center.y - (playerHeight / 1.9F);
+
+        // Create vector positioned at bottom of player sprite
+        Vector2 origin = new Vector2(transform.position.x, playerBottom);
+
+        float distance = playerHeight / 64;
+
+        // Create raycast from bottom of player down towards ground
+        RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
+        if(raycast.collider != null) {
+            Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
+        }
+        
+        // return isGroundedShortcut.isGrounded;
+        return raycast.collider != null && raycast.collider.gameObject.tag == "Ground";
     }
 
     // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
