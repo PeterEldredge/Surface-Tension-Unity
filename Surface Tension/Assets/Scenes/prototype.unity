@@ -754,7 +754,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   serializedVersion: 2
   m_Size: {x: 0.45, y: 0.8}
-  m_EdgeRadius: 0
+  m_EdgeRadius: 0.1
 --- !u!95 &831241069
 Animator:
   serializedVersion: 3
@@ -832,7 +832,6 @@ MonoBehaviour:
   jumpVelocity: 6
   fallMultiplyer: 3
   jumpMultiplyer: 2.5
-  isGroundedShortcut: {fileID: 0}
   rWallCheckShortcut: {fileID: 312983024}
   lWallCheckShortcut: {fileID: 238694624}
   direction: 0
