@@ -20,9 +20,6 @@ public class Player : MonoBehaviour
     //Initializes pBody, this will be the player's Rigidbody2D component 
     Rigidbody2D pBody;
 
-    //Initializes shortcut to IsGrounded script
-    public IsGrounded isGroundedShortcut;
-
     //Initializes shortcut to WallCheck script on both RightCheck and LeftCheck
     public WallCheck rWallCheckShortcut;
     public WallCheck lWallCheckShortcut;
