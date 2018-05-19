@@ -165,18 +165,21 @@ public class Player : MonoBehaviour
     /// </summary>
     private bool TouchingGround() 
     {   
-        // Create vector positioned at bottom of player sprite
+        // Calculate bottom of player:
+        // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
         float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
-        float playerBottom = GetComponent<BoxCollider2D>().bounds.center.y - (playerHeight / 1.9F);
+        float playerBottom = GetComponent<BoxCollider2D>().bounds.center.y - (playerHeight / 1.9F) - GetComponent<BoxCollider2D>().edgeRadius;
+
+        // Create vector positioned at bottom of player sprite
         Vector2 origin = new Vector2(transform.position.x, playerBottom);
 
         // Calculate distance raycast will check for ground collision
-        float distance = playerHeight / 200;
+        float distance = (playerHeight / 200);
 
         // Create raycast from bottom of player down towards ground
         RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
         if(raycast.collider != null) {
-            // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
+            Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
 
             // Check if raycast hit ground
             if(raycast.collider.gameObject.tag == "Ground") {
