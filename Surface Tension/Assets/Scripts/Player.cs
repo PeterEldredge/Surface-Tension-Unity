@@ -53,7 +53,7 @@ public class Player : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update () 
+    void FixedUpdate () 
 	{
         // Get player input
         float horizontalInput = Input.GetAxis("Horizontal") * moveSpeed;
@@ -167,26 +167,28 @@ public class Player : MonoBehaviour
     /// Returns whether player is touching ground
     /// </summary>
     private bool TouchingGround() 
-    {
-        // Get height of player sprite
-        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
-
-        // Calcualte bottom of player sprite
-        float playerBottom = GetComponent<BoxCollider2D>().bounds.center.y - (playerHeight / 1.9F);
-
+    {   
         // Create vector positioned at bottom of player sprite
+        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
+        float playerBottom = GetComponent<BoxCollider2D>().bounds.center.y - (playerHeight / 1.9F);
         Vector2 origin = new Vector2(transform.position.x, playerBottom);
 
-        float distance = playerHeight / 64;
+        // Calculate distance raycast will check for ground collision
+        float distance = playerHeight / 200;
 
         // Create raycast from bottom of player down towards ground
         RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
         if(raycast.collider != null) {
-            Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
+            // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
+
+            // Check if raycast hit ground
+            if(raycast.collider.gameObject.tag == "Ground") {
+                return true;
+            }
         }
         
-        // return isGroundedShortcut.isGrounded;
-        return raycast.collider != null && raycast.collider.gameObject.tag == "Ground";
+        // return false if raycast didn't hit ground
+        return false;
     }
 
     // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
