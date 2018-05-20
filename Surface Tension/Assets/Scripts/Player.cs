@@ -9,7 +9,7 @@ public class Player : MonoBehaviour
     public float moveSpeed;
 
     //Velocity applied to player on jump
-    public float jumpVelocity;
+    public float jumpSpeed;
 
     //Affects the gravity of the player as they fall
     public float fallMultiplyer;
@@ -110,7 +110,7 @@ public class Player : MonoBehaviour
     private void HandleJump() {
         if (Input.GetButtonDown("Jump") && TouchingGround())
         {
-            pBody.velocity = Vector2.up * jumpVelocity;
+            pBody.velocity += Vector2.up * jumpSpeed;
         }
 
         //Multiplies the affects of gravity on the player given specific instances
@@ -142,7 +142,7 @@ public class Player : MonoBehaviour
     {
         if (TouchingWall(Direction.RIGHT) && TouchingWall(Direction.LEFT) && pBody.velocity.y == 0 && !TouchingGround())
         {
-            pBody.velocity =  -1 * Vector2.up * jumpVelocity;
+            pBody.velocity =  -1 * Vector2.up * jumpSpeed;
         }
     }
 

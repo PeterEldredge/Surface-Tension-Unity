@@ -829,7 +829,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 6
-  jumpVelocity: 6
+  jumpSpeed: 6
   fallMultiplyer: 3
   jumpMultiplyer: 2.5
   rWallCheckShortcut: {fileID: 312983024}
