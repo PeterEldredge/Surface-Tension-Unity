@@ -154,18 +154,16 @@ public class Player : MonoBehaviour
         }
     }
 
-
-
     /// <summary>
     /// Returns if the jump key is being held down
     /// </summary>
     private void JumpDown()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && TouchingGround(Surface.ALL))
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump")) && TouchingGround(Surface.ALL))
         {
             applyMaxUpwards = true;
         }
-        if (Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetButtonUp("Jump"))
         {
             applyMinUpwards = true;
         }
@@ -297,7 +295,7 @@ public class Player : MonoBehaviour
         // Create vector positioned at bottom of player sprite
         Vector2 origin = new Vector2(playerXMin, playerYMin);
 
-        float distance = collider.bounds.size.y;
+        float distance = collider.bounds.size.y + collider.edgeRadius;
         if (surface == Surface.ALL)
         {
             if (ObjectCast(origin, Vector2.up, distance) != Surface.NONE)
