@@ -5,8 +5,20 @@ using UnityEngine;
 
 public class Player : MonoBehaviour 
 {
-    //Horizontal velocity multiplyer
-    public float moveSpeed;
+    /// <summary>
+    /// Maximum speed player can move (modified by ground contact with surface)
+    /// </summary>
+    public float maxSpeed;
+
+    /// <summary>
+    /// Speed at which player pushes a block
+    /// </summary>
+    public float pushSpeed;
+
+    /// <summary>
+    /// Rate of change of speed (based on player input)
+    /// </summary>
+    public float acceleration;
 
     //Velocity applied to player on jump
     public float jumpSpeed;
@@ -53,18 +65,64 @@ public class Player : MonoBehaviour
     void FixedUpdate () 
 	{
         // Get player input
-        float horizontalInput = Input.GetAxis("Horizontal") * moveSpeed;
+        float horizontalInput = Input.GetAxis("Horizontal");
 
         // Move and animate character
         HandleMovement(horizontalInput);
         HandleAnimation(horizontalInput);
-        HandleJump();
         HandleRespawn();
 
         // Check if stuck
         IsStuck();  
         TouchingGround();
 	}
+
+    void Update()
+    {
+        HandleJump();
+    }
+
+    /// <summary>
+    /// Move player based on horizontal input
+    /// </summary>
+    /// <param name="horizontalInput">Horizontal input</param>
+    private void HandleMovement(float horizontalInput) 
+    {
+        Debug.Log("Horizontal Input: " + horizontalInput);
+        Debug.Log("Accelration: " + acceleration);
+        Debug.Log("change in time: " + Time.deltaTime);
+
+        Vector2 newVelocity = pBody.velocity + new Vector2(horizontalInput * acceleration * Time.deltaTime, 0);
+
+        if(Mathf.Abs(newVelocity.x) <= maxSpeed) {
+            pBody.velocity = newVelocity;
+        }
+        else {
+            pBody.velocity = new Vector2(horizontalInput * maxSpeed, pBody.velocity.y);
+        }
+
+        Debug.Log("Velocity: " + pBody.velocity);
+        
+
+
+        //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
+        // If moving away from wall or not jumping
+        // if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) 
+        // || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) 
+        // || (TouchingGround() && !Input.GetButtonDown("Jump")))
+        // {
+        //     if (!(Input.GetButtonDown("Jump") 
+        //     && GetDirection(movement) == Direction.RIGHT 
+        //     && TouchingWall(Direction.RIGHT)) 
+
+        //     || !(Input.GetButtonDown("Jump") 
+        //     && GetDirection(movement) == Direction.LEFT 
+        //     && TouchingWall(Direction.LEFT)))
+        //     {
+        //         pBody.velocity = new Vector2(movement, pBody.velocity.y);
+        //     }
+        // }
+    }
 
     /// <summary>
     /// Animate player based on horizontal input
@@ -86,23 +144,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Move player based on horizontal input
-    /// </summary>
-    /// <param name="movement">Horizontal input</param>
-    private void HandleMovement(float movement) 
-    {
-        //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
-
-        // If moving away from wall or not jumping
-        if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) || (TouchingGround() && !Input.GetButtonDown("Jump")))
-        {
-            if (!(Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.RIGHT && TouchingWall(Direction.RIGHT)) || !(Input.GetButtonDown("Jump") && GetDirection(movement) == Direction.LEFT && TouchingWall(Direction.LEFT)))
-            {
-                pBody.velocity = new Vector2(movement, pBody.velocity.y);
-            }
-        }
-    }
+    
 
     /// <summary>
     /// Player jumps if conditions are met
@@ -179,7 +221,7 @@ public class Player : MonoBehaviour
         // Create raycast from bottom of player down towards ground
         RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
         if(raycast.collider != null) {
-            Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
+            // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
 
             // Check if raycast hit ground
             if(raycast.collider.gameObject.tag == "Ground") {
