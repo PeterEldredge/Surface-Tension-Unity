@@ -16,25 +16,26 @@ public class Player : MonoBehaviour
     public float pushSpeed;
 
     /// <summary>
-    /// Rate of change of speed (based on player input)
+    /// Speed at which player navigates a slope
     /// </summary>
-    public float acceleration;
+    public float slopeSpeed;
 
-    //Velocity applied to player on jump
-    public float jumpSpeed;
+    float horizontalInput;
 
-    //Affects the gravity of the player as they fall
-    public float fallMultiplyer;
+    public float maxHeightVelocity;
+    public float minHeightVelocity;
 
-    //Affects the gravity of the player as they jump
-    public float jumpMultiplyer;
+    public float upGravity;
+    public float downGravity;
+
+    private bool applyMaxUpwards = false;
+    private bool applyMinUpwards = false;
+
+    private Vector2 prevVeclocity;
+
 
     //Initializes pBody, this will be the player's Rigidbody2D component 
     Rigidbody2D pBody;
-
-    //Initializes shortcut to WallCheck script on both RightCheck and LeftCheck
-    public WallCheck rWallCheckShortcut;
-    public WallCheck lWallCheckShortcut;
 
     /// <summary>
     /// Definition for direction player is facing
@@ -45,9 +46,21 @@ public class Player : MonoBehaviour
     };
 
     /// <summary>
+    /// Definition for surface the player is touching
+    /// </summary>
+    public enum Surface
+    {
+        OBJECT,
+        GROUND,
+        SLOPE,
+        ALL,
+        NONE
+    };
+
+    /// <summary>
     /// Direction player is currently facing
     /// </summary>
-    public Direction direction;
+    private Direction direction;
 
     /// <summary>
     /// True if player is currently moving
@@ -59,77 +72,66 @@ public class Player : MonoBehaviour
     void Awake()
     {
         pBody = GetComponent<Rigidbody2D>();
+        prevVeclocity = pBody.velocity;
     }
 
     // Update is called once per frame
+    void Update()
+    {
+        // Get player input
+        horizontalInput = Input.GetAxis("Horizontal");
+
+        //Checks jump key
+        JumpDown();
+
+        HandleRespawn();
+    }
+
+    // Update called at a fixed delta time
     void FixedUpdate () 
 	{
-        // Get player input
-        float horizontalInput = Input.GetAxis("Horizontal");
 
         // Move and animate character
         HandleMovement(horizontalInput);
         HandleAnimation(horizontalInput);
-        HandleRespawn();
+
+        //Handles changing y velocity
+        HandleJump();
 
         // Check if stuck 
-        TouchingGround();
+        IsStuck();
 	}
-
-    void Update()
-    {
-        HandleJump();
-    }
 
     /// <summary>
     /// Move player based on horizontal input
     /// </summary>
     /// <param name="horizontalInput">Horizontal input</param>
-    private void HandleMovement(float horizontalInput) 
+    private void HandleMovement(float horizontalInput)
     {
-        Vector2 newVelocity = pBody.velocity + new Vector2(horizontalInput * acceleration * Time.deltaTime, 0);
-        /* 
-        if(GetDirection(horizontalInput) != null) {
-            pBody.sharedMaterial.friction = 0;
-        }
-        else {
-            pBody.sharedMaterial.friction = .4F;
-        }
-        */
-        if(Mathf.Abs(newVelocity.x) <= maxSpeed && !TouchingBlock(GetDirection(horizontalInput))) {
-            // pBody.velocity = new Vector2(horizontalInput * maxSpeed, pBody.velocity.y);
-            pBody.velocity = newVelocity;
-        }
-        else if(TouchingGround() && TouchingBlock(GetDirection(horizontalInput))) {
-            // Debug.Log("pushing against block");
-            pBody.velocity = new Vector2(horizontalInput * pushSpeed, pBody.velocity.y);
-        }
-        else if (TouchingGround()) {
-            pBody.velocity = new Vector2(horizontalInput * maxSpeed, pBody.velocity.y);
-        }
-        
-
-        // Debug.Log("Velocity: " + pBody.velocity);
-        
-
-
         //Ensures player cannot get stuck on walls by preventing velocity towards a wall when directly next to it
-        // If moving away from wall or not jumping
-        // if ((GetDirection(movement) == Direction.RIGHT && !TouchingWall(Direction.RIGHT)) 
-        // || (GetDirection(movement) == Direction.LEFT && !TouchingWall(Direction.LEFT)) 
-        // || (TouchingGround() && !Input.GetButtonDown("Jump")))
-        // {
-        //     if (!(Input.GetButtonDown("Jump") 
-        //     && GetDirection(movement) == Direction.RIGHT 
-        //     && TouchingWall(Direction.RIGHT)) 
+        //If moving away from wall or not jumping
+        Direction? inputDirection = GetDirection(horizontalInput);
 
-        //     || !(Input.GetButtonDown("Jump") 
-        //     && GetDirection(movement) == Direction.LEFT 
-        //     && TouchingWall(Direction.LEFT)))
-        //     {
-        //         pBody.velocity = new Vector2(movement, pBody.velocity.y);
-        //     }
-        // }
+        //Stores velocity the player will move at
+        float moveSpeed = maxSpeed;
+
+        //Figure out raycasts that can check for multiple surfaces!
+        if (Touching(inputDirection, Surface.OBJECT) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)))
+        {
+            moveSpeed += pushSpeed;
+        }
+        if (Touching(inputDirection, Surface.SLOPE) && TouchingGround(Surface.ALL))
+        {
+            moveSpeed += slopeSpeed;
+        }
+        if ((Touching(inputDirection, Surface.GROUND) && !Touching(inputDirection, Surface.OBJECT)) 
+            || (Touching(inputDirection, Surface.ALL) && !TouchingGround(Surface.ALL)))
+        {
+            moveSpeed = 0;
+        }
+
+        pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
+        prevVeclocity = pBody.velocity;
     }
 
     /// <summary>
@@ -152,24 +154,53 @@ public class Player : MonoBehaviour
         }
     }
 
-    
+
 
     /// <summary>
-    /// Player jumps if conditions are met
+    /// Returns if the jump key is being held down
     /// </summary>
-    private void HandleJump() {
-        if (Input.GetButtonDown("Jump") && TouchingGround())
+    private void JumpDown()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && TouchingGround(Surface.ALL))
         {
-            pBody.velocity += Vector2.up * jumpSpeed;
+            applyMaxUpwards = true;
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            applyMinUpwards = true;
+        }
+    }
+
+    private void HandleJump()
+    {
+        if (applyMaxUpwards && TouchingGround(Surface.ALL))
+        {
+            pBody.velocity = new Vector2(pBody.velocity.x, maxHeightVelocity);
+            applyMaxUpwards = false;
+        }
+        else if (applyMinUpwards)
+        {
+            if (minHeightVelocity < pBody.velocity.y)
+            {
+                pBody.velocity = new Vector2(pBody.velocity.x, minHeightVelocity);
+            }
+            applyMinUpwards = false;
         }
 
-        //Multiplies the affects of gravity on the player given specific instances
-        if (pBody.velocity.y < 0) //If player falling, increase gravity affect
+        if (!TouchingGround(Surface.ALL))
         {
-            pBody.velocity += Vector2.up * Physics2D.gravity.y * (fallMultiplyer) * Time.deltaTime;
-        } else if (pBody.velocity.y > 0 && !Input.GetButton("Jump")) 
-        {
-            pBody.velocity += Vector2.up * Physics2D.gravity.y * (jumpMultiplyer) * Time.deltaTime;
+            if (pBody.velocity.y > 0)
+            {
+                pBody.gravityScale = upGravity;
+            }
+            else if (pBody.velocity.y < 0)
+            {
+                pBody.gravityScale = downGravity;
+            }
+            else
+            {
+                pBody.gravityScale = 1f;
+            }
         }
     }
 
@@ -190,38 +221,24 @@ public class Player : MonoBehaviour
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
     private void IsStuck()
     {
-        if (TouchingBlock(Direction.RIGHT) && TouchingBlock(Direction.LEFT) && pBody.velocity.y == 0 && !TouchingGround())
+        if (!Touching(Direction.RIGHT, Surface.ALL) && !Touching(Direction.LEFT, Surface.ALL) && pBody.velocity.y == 0 && !TouchingGround(Surface.ALL))
         {
-            pBody.velocity =  -1 * Vector2.up * jumpSpeed;
+            pBody.velocity =  -1 * Vector2.up * 10;
         }
-    }
-
-    /// <summary>
-    /// If player is touching a wall, return what side it's on
-    /// </summary>
-    private bool TouchingBlock(Direction? direction)
-    {
-        if(direction.Equals(Direction.RIGHT) && rWallCheckShortcut.isNextToWall) {
-            return true;
-        }
-        else if(direction.Equals(Direction.LEFT) && lWallCheckShortcut.isNextToWall) {
-            return true;
-        }
-        else return false;
     }
 
     /// <summary>
     /// Returns whether player is touching ground
     /// </summary>
-    private bool TouchingGround() 
-    {   
+    private bool TouchingGround(Surface surface)
+    {
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
         // Calculate bottom of player:
         // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-        
+
         float playerHeight = collider.bounds.size.y;
-        float playerBottom = collider.bounds.center.y - (playerHeight / 1.9F) - collider.edgeRadius;
+        float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
 
         // Calculate left edge of player:
         // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
@@ -232,32 +249,105 @@ public class Player : MonoBehaviour
 
         float distance = collider.bounds.size.x + collider.edgeRadius;
 
-        RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.right, distance);
-        if(raycast.collider != null) {
-            // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
-
-            // Check if raycast hit ground
-            if(raycast.collider.gameObject.layer == LayerMask.NameToLayer("Ground")) {
+        if (surface == Surface.ALL)
+        {
+            if (ObjectCast(origin, Vector2.right, distance) != Surface.NONE)
+            {
+                return true;
+            }
+            else if (GroundCast(origin, Vector2.right, distance) != Surface.NONE)
+            {
                 return true;
             }
         }
-
-        // // Calculate distance raycast will check for ground collision
-        // float distance = (playerHeight / 200);
-
-        // // Create raycast from bottom of player down towards ground
-        // RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
-        // if(raycast.collider != null) {
-        //     // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
-
-        //     // Check if raycast hit ground
-        //     if(raycast.collider.gameObject.layer == LayerMask.NameToLayer("Ground")) {
-        //         return true;
-        //     }
-        // }
-        
-        // return false if raycast didn't hit ground
+        else if (ObjectCast(origin, Vector2.right, distance) == surface)
+        {
+            return true;
+        }
+        else if (GroundCast(origin, Vector2.right, distance) == surface)
+        {
+            return true;
+        }
         return false;
+    }
+
+    /// <summary>
+    /// If player is touching an object, return it
+    /// </summary>
+    private bool Touching(Direction? direction, Surface surface)
+    {
+        BoxCollider2D collider = GetComponent<BoxCollider2D>();
+
+        // Calculate bottom of player:
+        // Bottom of BoxCollider
+        float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
+
+        // Calculate distance to left edge of player:
+        // Half the collider + the radius + a little
+        // Left or Right determines the side of the player the ray is being shot from
+        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f;
+        if (direction == Direction.LEFT)
+        {
+            playerXMin = collider.bounds.center.x - playerXMin;
+        } else
+        {
+            playerXMin = collider.bounds.center.x + playerXMin;
+        }
+
+        // Create vector positioned at bottom of player sprite
+        Vector2 origin = new Vector2(playerXMin, playerYMin);
+
+        float distance = collider.bounds.size.y;
+        if (surface == Surface.ALL)
+        {
+            if (ObjectCast(origin, Vector2.up, distance) != Surface.NONE)
+            {
+                return true;
+            }
+            else if (GroundCast(origin, Vector2.up, distance) != Surface.NONE)
+            {
+                return true;
+            }
+        }
+        else if (ObjectCast(origin, Vector2.up, distance) == surface)
+        {
+            return true;
+        }
+        else if (GroundCast(origin, Vector2.up, distance) == surface)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private Surface ObjectCast(Vector2 origin, Vector2 direction, float distance)
+    {
+        RaycastHit2D raycast = Physics2D.Raycast(origin, direction, distance, LayerMask.GetMask("Object"));
+        if (raycast.collider != null)
+        {
+            if (raycast.collider.tag == "Object")
+            {
+                return Surface.OBJECT;
+            }
+        }
+        return Surface.NONE;
+    }
+
+    private Surface GroundCast(Vector2 origin, Vector2 direction, float distance)
+    {
+        RaycastHit2D raycast = Physics2D.Raycast(origin, direction, distance, LayerMask.GetMask("Ground"));
+        if (raycast.collider != null)
+        {
+            if (raycast.collider.tag == "Slope")
+            {
+                return Surface.SLOPE;
+            }
+            else if (raycast.collider.tag == "Ground")
+            {
+                return Surface.GROUND;
+            }
+        }
+        return Surface.NONE;
     }
 
     // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
