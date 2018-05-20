@@ -88,20 +88,27 @@ public class Player : MonoBehaviour
     /// <param name="horizontalInput">Horizontal input</param>
     private void HandleMovement(float horizontalInput) 
     {
-        Debug.Log("Horizontal Input: " + horizontalInput);
-        Debug.Log("Accelration: " + acceleration);
-        Debug.Log("change in time: " + Time.deltaTime);
-
         Vector2 newVelocity = pBody.velocity + new Vector2(horizontalInput * acceleration * Time.deltaTime, 0);
-
-        if(Mathf.Abs(newVelocity.x) <= maxSpeed) {
-            pBody.velocity = newVelocity;
+        /* 
+        if(GetDirection(horizontalInput) != null) {
+            pBody.sharedMaterial.friction = 0;
         }
         else {
+            pBody.sharedMaterial.friction = .4F;
+        }
+*/
+        if(Mathf.Abs(newVelocity.x) <= maxSpeed && !TouchingBlock(GetDirection(horizontalInput))) {
+            pBody.velocity = newVelocity;
+        }
+        else if(TouchingGround() && TouchingBlock(GetDirection(horizontalInput))) {
+            Debug.Log("pushing against block");
+            pBody.velocity = new Vector2(horizontalInput * pushSpeed, pBody.velocity.y);
+        }
+        else if (TouchingGround()) {
             pBody.velocity = new Vector2(horizontalInput * maxSpeed, pBody.velocity.y);
         }
 
-        Debug.Log("Velocity: " + pBody.velocity);
+        // Debug.Log("Velocity: " + pBody.velocity);
         
 
 
@@ -182,7 +189,7 @@ public class Player : MonoBehaviour
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
     private void IsStuck()
     {
-        if (TouchingWall(Direction.RIGHT) && TouchingWall(Direction.LEFT) && pBody.velocity.y == 0 && !TouchingGround())
+        if (TouchingBlock(Direction.RIGHT) && TouchingBlock(Direction.LEFT) && pBody.velocity.y == 0 && !TouchingGround())
         {
             pBody.velocity =  -1 * Vector2.up * jumpSpeed;
         }
@@ -191,7 +198,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// If player is touching a wall, return what side it's on
     /// </summary>
-    private bool TouchingWall(Direction direction)
+    private bool TouchingBlock(Direction? direction)
     {
         if(direction.Equals(Direction.RIGHT) && rWallCheckShortcut.isNextToWall) {
             return true;
@@ -224,7 +231,7 @@ public class Player : MonoBehaviour
             // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
 
             // Check if raycast hit ground
-            if(raycast.collider.gameObject.tag == "Ground") {
+            if(raycast.collider.gameObject.layer == LayerMask.NameToLayer("Ground")) {
                 return true;
             }
         }

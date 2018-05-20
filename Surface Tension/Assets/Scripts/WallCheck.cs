@@ -8,7 +8,7 @@ public class WallCheck : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Ground")
+        if (collision.tag == "Object")
         {
             isNextToWall = true;
         }
@@ -16,7 +16,7 @@ public class WallCheck : MonoBehaviour {
 
     void OnTriggerStay2D(Collider2D collision)
     {
-        if (collision.tag == "Ground")
+        if (collision.tag == "Object")
         {
             isNextToWall = true;
         }
@@ -24,7 +24,7 @@ public class WallCheck : MonoBehaviour {
 
     void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.tag == "Ground")
+        if (collision.tag == "Object")
         {
             isNextToWall = false;
         }
