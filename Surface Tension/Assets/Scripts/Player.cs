@@ -72,8 +72,7 @@ public class Player : MonoBehaviour
         HandleAnimation(horizontalInput);
         HandleRespawn();
 
-        // Check if stuck
-        IsStuck();  
+        // Check if stuck 
         TouchingGround();
 	}
 
@@ -96,17 +95,19 @@ public class Player : MonoBehaviour
         else {
             pBody.sharedMaterial.friction = .4F;
         }
-*/
+        */
         if(Mathf.Abs(newVelocity.x) <= maxSpeed && !TouchingBlock(GetDirection(horizontalInput))) {
+            // pBody.velocity = new Vector2(horizontalInput * maxSpeed, pBody.velocity.y);
             pBody.velocity = newVelocity;
         }
         else if(TouchingGround() && TouchingBlock(GetDirection(horizontalInput))) {
-            Debug.Log("pushing against block");
+            // Debug.Log("pushing against block");
             pBody.velocity = new Vector2(horizontalInput * pushSpeed, pBody.velocity.y);
         }
         else if (TouchingGround()) {
             pBody.velocity = new Vector2(horizontalInput * maxSpeed, pBody.velocity.y);
         }
+        
 
         // Debug.Log("Velocity: " + pBody.velocity);
         
@@ -214,19 +215,24 @@ public class Player : MonoBehaviour
     /// </summary>
     private bool TouchingGround() 
     {   
+        BoxCollider2D collider = GetComponent<BoxCollider2D>();
+
         // Calculate bottom of player:
         // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-        float playerHeight = GetComponent<BoxCollider2D>().bounds.size.y;
-        float playerBottom = GetComponent<BoxCollider2D>().bounds.center.y - (playerHeight / 1.9F) - GetComponent<BoxCollider2D>().edgeRadius;
+        
+        float playerHeight = collider.bounds.size.y;
+        float playerBottom = collider.bounds.center.y - (playerHeight / 1.9F) - collider.edgeRadius;
+
+        // Calculate left edge of player:
+        // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
+        float playerXMin = collider.bounds.center.x - (collider.bounds.size.x / 2) - (collider.edgeRadius / 2);
 
         // Create vector positioned at bottom of player sprite
-        Vector2 origin = new Vector2(transform.position.x, playerBottom);
+        Vector2 origin = new Vector2(playerXMin, playerBottom);
 
-        // Calculate distance raycast will check for ground collision
-        float distance = (playerHeight / 200);
+        float distance = collider.bounds.size.x + collider.edgeRadius;
 
-        // Create raycast from bottom of player down towards ground
-        RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
+        RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.right, distance);
         if(raycast.collider != null) {
             // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
 
@@ -235,6 +241,20 @@ public class Player : MonoBehaviour
                 return true;
             }
         }
+
+        // // Calculate distance raycast will check for ground collision
+        // float distance = (playerHeight / 200);
+
+        // // Create raycast from bottom of player down towards ground
+        // RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.down, distance);
+        // if(raycast.collider != null) {
+        //     // Debug.Log("Raycast collided with " + raycast.collider.gameObject.name);
+
+        //     // Check if raycast hit ground
+        //     if(raycast.collider.gameObject.layer == LayerMask.NameToLayer("Ground")) {
+        //         return true;
+        //     }
+        // }
         
         // return false if raycast didn't hit ground
         return false;
