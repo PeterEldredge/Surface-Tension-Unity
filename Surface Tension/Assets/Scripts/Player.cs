@@ -353,5 +353,6 @@ public class Player : MonoBehaviour
     {
         respawn = GetComponent<Respawn>();
         respawn.manualRespawn();
+        respawn.manualReset();
     }
 }
