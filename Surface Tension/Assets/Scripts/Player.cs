@@ -73,6 +73,7 @@ public class Player : MonoBehaviour
     {
         pBody = GetComponent<Rigidbody2D>();
         prevVeclocity = pBody.velocity;
+        respawn = GetComponent<Respawn>();
     }
 
     // Update is called once per frame
@@ -351,8 +352,7 @@ public class Player : MonoBehaviour
     // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
     private void HandleRespawn()
     {
-        respawn = GetComponent<Respawn>();
-        respawn.manualRespawn();
+        // respawn.manualRespawn();
         respawn.manualReset();
     }
 }

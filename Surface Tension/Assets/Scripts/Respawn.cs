@@ -5,14 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class Respawn : MonoBehaviour {
 
-    private Vector2 spawnPoint;
+    public GameObject spawnPoint;
 
 	// Use this for initialization
 	public void manualRespawn() {
-        spawnPoint = GameObject.Find("Spawn Point").transform.position;
+        
         if (Input.GetKeyDown(KeyCode.R))
         {
-            transform.position = spawnPoint;
+            transform.position = spawnPoint.transform.position;
         }
     }
 
@@ -20,7 +20,7 @@ public class Respawn : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.T))
         {
-            SceneManager.LoadScene("prototype");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 	
