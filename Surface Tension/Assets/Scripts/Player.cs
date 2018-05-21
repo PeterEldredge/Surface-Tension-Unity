@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
         {
             moveSpeed = 0;
         }
-
+        Debug.Log(moveSpeed);
         pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
         prevVeclocity = pBody.velocity;
     }
