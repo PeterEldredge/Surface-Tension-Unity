@@ -227,6 +227,7 @@ public class Player : MonoBehaviour
 
         GetComponent<Animator>().SetInteger("Direction", (int)animDirection);
         GetComponent<Animator>().SetBool("Moving", moving);
+        GetComponent<Animator>().SetBool("Pushing", currentState.action == Action.PUSHING);
         
         if(animDirection.Equals(Direction.LEFT)) {
             GetComponent<SpriteRenderer>().flipX = true;
