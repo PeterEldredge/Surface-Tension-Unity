@@ -8,12 +8,17 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Maximum speed player can move (modified by ground contact with surface)
     /// </summary>
-    public float maxSpeed;
+    public float defaultSpeed;
 
     /// <summary>
     /// Speed at which player pushes a block
     /// </summary>
     public float pushSpeed;
+
+    /// <summary>
+    /// Speed at which player pulls a block
+    /// </summary>
+    public float pullSpeed;
 
     /// <summary>
     /// Speed at which player navigates a slope
@@ -28,10 +33,15 @@ public class Player : MonoBehaviour
     public float upGravity;
     public float downGravity;
 
+    public float collisionLeniency;
+
     private bool applyMaxUpwards = false;
     private bool applyMinUpwards = false;
 
     private bool objectAgainstWall = false;
+
+    private State currentState;
+    private State previousState;
 
     //Initializes pBody, this will be the player's Rigidbody2D component 
     Rigidbody2D pBody;
@@ -59,20 +69,31 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Definition for the states the player could be in
     /// </summary>
-    public enum State
+    public struct State
     {
-        NORMAL, //Nothing is blocking the player and they may move at notmal speed
-        PUSHING, //The player is pushing an object 
-        PULLING, //The player is pulling an object
-        UPSLOPE, //The player is currently walking up a slope
+        public Action action;
+        public Direction? direction;
+        public GameObject grabbedObject;
+    };
+
+    /// <summary>
+    /// Definition for the states the player could be in
+    /// </summary>
+    public enum Action
+    {
+        NORMAL, // Nothing is blocking the player and they may move at notmal speed
+        PUSHING, // The player is pushing an object 
+        PULLING, // The player is pulling an object
+        UPSLOPE, // The player is currently walking up a slope
         AGAINSTWALL // The player is up against a wall and cannot move in that direction
     };
 
     /// <summary>
     /// Direction player is currently facing
     /// </summary>
-    private Direction direction;
-    Direction? inputDirection;
+    private Direction animDirection;
+    private Direction? inputDirection;
+    private Direction? oppositeDirection;
 
     /// <summary>
     /// True if player is currently moving
@@ -83,8 +104,18 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        // Variable Initializations
         pBody = GetComponent<Rigidbody2D>();
         inputDirection = null;
+        oppositeDirection = null;
+        currentState.action = Action.NORMAL;
+        currentState.direction = Direction.RIGHT;
+        currentState.grabbedObject = null;
+        previousState.action  = Action.NORMAL;
+        previousState.direction = Direction.RIGHT;
+        previousState.grabbedObject = null;
+
+        // Script Initializations
         respawn = GetComponent<Respawn>();
     }
 
@@ -92,10 +123,11 @@ public class Player : MonoBehaviour
     void Update()
     {
         objectAgainstWall = false;
-        inputDirection = GetDirection(horizontalInput);
 
         // Get player input
         horizontalInput = Input.GetAxis("Horizontal");
+        inputDirection = GetDirection(horizontalInput);
+        oppositeDirection = GetDirection(-1 * horizontalInput);
 
         //Checks jump key
         JumpDown();
@@ -106,11 +138,13 @@ public class Player : MonoBehaviour
     // Update called at a fixed delta time
     void FixedUpdate () 
 	{
+        // Set the player's current state
+        SetCurrentState();
 
         // Move the character
         HandleMovement(horizontalInput);
 
-        //Handles changing y velocity
+        // Handles changing y velocity
         HandleJump();
 
         // Check if stuck 
@@ -120,13 +154,37 @@ public class Player : MonoBehaviour
         HandleAnimation(horizontalInput);
     }
 
-    /*private State playerState() WORK IN PROGRESS, DONT TOUCH.
+    private void SetCurrentState()
     {
-        if (Touching(inputDirection, Surface.OBJECT) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
+        currentState.direction = inputDirection;
+        if (Touching(inputDirection, Surface.OBJECT, collisionLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
         {
-            return ;
+            currentState.action = Action.PUSHING; // The player is pushing an object
+            currentState.grabbedObject = GrabbedObjectCast(currentState.direction, currentState.action); // Finds the object the player is currently grabbing
         }
-    }*/
+        else if (Touching(oppositeDirection, Surface.OBJECT, collisionLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetKey(KeyCode.LeftShift)))
+        {
+            currentState.action = Action.PULLING; // The player is pulling an object
+            currentState.grabbedObject = GrabbedObjectCast(oppositeDirection, currentState.action);
+        }
+        else if (Touching(inputDirection, Surface.SLOPE, 0) && TouchingGround(Surface.ALL))
+        {
+            currentState.action = Action.UPSLOPE; // The player is walking up a slope
+            currentState.grabbedObject = null;
+        }
+        else if ((Touching(inputDirection, Surface.ALL, 0) && !TouchingGround(Surface.ALL))
+            || (Touching(inputDirection, Surface.ALL, 0) && TouchingGround(Surface.ALL))
+            || objectAgainstWall)
+        {
+            currentState.action = Action.AGAINSTWALL; // The player is agaist a wall
+            currentState.grabbedObject = null;
+        }
+        else
+        {
+            currentState.action = Action.NORMAL;
+            currentState.grabbedObject = null;
+        }
+    }
 
     /// <summary>
     /// Move player based on horizontal input
@@ -134,26 +192,29 @@ public class Player : MonoBehaviour
     /// <param name="horizontalInput">Horizontal input</param>
     private void HandleMovement(float horizontalInput)
     {
-
-        //Stores velocity the player will move at
-        float moveSpeed = maxSpeed;
-
-        //Figure out raycasts that can check for multiple surfaces!
-        if (Touching(inputDirection, Surface.OBJECT) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
+        float distAway;
+        float moveSpeed = defaultSpeed;
+        switch (currentState.action)
         {
-            moveSpeed += pushSpeed;
-        }
-        if (Touching(inputDirection, Surface.SLOPE) && TouchingGround(Surface.ALL))
-        {
-            moveSpeed += slopeSpeed;
-        }
-        if ((Touching(inputDirection, Surface.ALL) && !TouchingGround(Surface.ALL))
-            || (Touching(inputDirection, Surface.OBJECT) && !Input.GetKey(KeyCode.LeftShift) && TouchingGround(Surface.ALL)) 
-            || objectAgainstWall)
-        {
-            moveSpeed = 0;
+            case Action.PUSHING:
+                distAway = horizontalInput * pushSpeed * Time.deltaTime;
+                moveSpeed = pushSpeed;
+                currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                break;
+            case Action.PULLING:
+                distAway = horizontalInput * pullSpeed * Time.deltaTime;
+                moveSpeed = pullSpeed;
+                currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                break;
+            case Action.UPSLOPE:
+                moveSpeed = slopeSpeed;
+                break;
+            case Action.AGAINSTWALL:
+                moveSpeed = 0;
+                break;
         }
         pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
+        previousState = currentState;
     }
 
     /// <summary>
@@ -161,16 +222,16 @@ public class Player : MonoBehaviour
     /// </summary>
     private void HandleAnimation(float horizontalInput)
     {
-        direction = GetDirection(horizontalInput) ?? direction;
+        animDirection = GetDirection(horizontalInput) ?? animDirection;
         moving = GetDirection(horizontalInput * pBody.velocity.x) != null;
 
-        GetComponent<Animator>().SetInteger("Direction", (int)direction);
+        GetComponent<Animator>().SetInteger("Direction", (int)animDirection);
         GetComponent<Animator>().SetBool("Moving", moving);
         
-        if(direction.Equals(Direction.LEFT)) {
+        if(animDirection.Equals(Direction.LEFT)) {
             GetComponent<SpriteRenderer>().flipX = true;
         }
-        else if(direction.Equals(Direction.RIGHT)) {
+        else if(animDirection.Equals(Direction.RIGHT)) {
             GetComponent<SpriteRenderer>().flipX = false;
         }
     }
@@ -240,7 +301,7 @@ public class Player : MonoBehaviour
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
     private void IsStuck()
     {
-        if (Touching(Direction.RIGHT, Surface.ALL) && Touching(Direction.LEFT, Surface.ALL) && pBody.velocity.y == 0 && !TouchingGround(Surface.ALL))
+        if (Touching(Direction.RIGHT, Surface.ALL, 0) && Touching(Direction.LEFT, Surface.ALL, 0) && pBody.velocity.y == 0 && !TouchingGround(Surface.ALL))
         {
             pBody.velocity =  -1 * Vector2.up * 5;
         }
@@ -255,7 +316,6 @@ public class Player : MonoBehaviour
 
         // Calculate bottom of player:
         // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-
         float playerHeight = collider.bounds.size.y;
         float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
 
@@ -267,33 +327,14 @@ public class Player : MonoBehaviour
         Vector2 origin = new Vector2(playerXMin, playerBottom);
 
         float distance = collider.bounds.size.x + collider.edgeRadius;
-        Debug.DrawRay(origin, Vector2.right * distance, Color.magenta);
-        if (surface == Surface.ALL)
-        {
-            if (ObjectCast(origin, Vector2.right, distance) != Surface.NONE)
-            {
-                return true;
-            }
-            else if (GroundCast(origin, Vector2.right, distance) != Surface.NONE)
-            {
-                return true;
-            }
-        }
-        else if (ObjectCast(origin, Vector2.right, distance) == surface)
-        {
-            return true;
-        }
-        else if (GroundCast(origin, Vector2.right, distance) == surface)
-        {
-            return true;
-        }
-        return false;
+
+        return IsTouching(origin, Vector2.right, distance, surface);
     }
 
     /// <summary>
     /// If player is touching an object, return it
     /// </summary>
-    private bool Touching(Direction? direction, Surface surface)
+    private bool Touching(Direction? direction, Surface surface, float leniency)
     {
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
@@ -305,6 +346,8 @@ public class Player : MonoBehaviour
         // Half the collider + the radius + a little
         // Left or Right determines the side of the player the ray is being shot from
         float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f;
+
+        // If checking left, subtract the distance
         if (direction == Direction.LEFT)
         {
             playerXMin = collider.bounds.center.x - playerXMin;
@@ -317,23 +360,31 @@ public class Player : MonoBehaviour
         Vector2 origin = new Vector2(playerXMin, playerYMin);
 
         float distance = collider.bounds.size.y + collider.edgeRadius;
-        Debug.DrawRay(origin, Vector2.up * distance, Color.magenta);
+
+        return IsTouching(origin, Vector2.up, distance, surface);
+    }
+
+    /// <summary>
+    /// Runs and returns whether the raycast hit the desired target
+    /// </summary>
+    private bool IsTouching(Vector2 origin, Vector2 direction, float distance, Surface surface)
+    {
         if (surface == Surface.ALL)
         {
-            if (ObjectCast(origin, Vector2.up, distance) != Surface.NONE)
+            if (ObjectCast(origin, direction, distance) != Surface.NONE)
             {
                 return true;
             }
-            else if (GroundCast(origin, Vector2.up, distance) != Surface.NONE)
+            else if (GroundCast(origin, direction, distance) != Surface.NONE)
             {
                 return true;
             }
         }
-        else if (ObjectCast(origin, Vector2.up, distance) == surface)
+        else if (ObjectCast(origin, direction, distance) == surface)
         {
             return true;
         }
-        else if (GroundCast(origin, Vector2.up, distance) == surface)
+        else if (GroundCast(origin, direction, distance) == surface)
         {
             return true;
         }
@@ -356,6 +407,38 @@ public class Player : MonoBehaviour
             }
         }
         return Surface.NONE;
+    }
+
+    private GameObject GrabbedObjectCast(Direction? direction, Action action)
+    {
+        BoxCollider2D collider = GetComponent<BoxCollider2D>();
+
+        // Calculate bottom of player:
+        // Bottom of BoxCollider
+        float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
+
+        // Calculate distance to left edge of player:
+        // Half the collider + the radius + a little
+        // Left or Right determines the side of the player the ray is being shot from
+        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f;
+
+        // If checking left, subtract the distance
+        if (direction == Direction.LEFT)
+        {
+            playerXMin = collider.bounds.center.x - playerXMin;
+        }
+        else
+        {
+            playerXMin = collider.bounds.center.x + playerXMin;
+        }
+
+        // Create vector positioned at bottom of player sprite
+        Vector2 origin = new Vector2(playerXMin, playerYMin);
+
+        float distance = collider.bounds.size.y + collider.edgeRadius;
+
+        RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.up, distance, LayerMask.GetMask("Object"));
+        return raycast.collider.gameObject;
     }
 
     private Surface GroundCast(Vector2 origin, Vector2 direction, float distance)

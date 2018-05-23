@@ -30,8 +30,8 @@ public class SurfaceCheck : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        touchingLeftWall = Touching(Direction.LEFT, Surface.GROUND);
-        touchingRightWall = Touching(Direction.RIGHT, Surface.GROUND);
+        touchingLeftWall = Touching(Direction.LEFT, Surface.ALL);
+        touchingRightWall = Touching(Direction.RIGHT, Surface.ALL);
 	}
 
     /// <summary>
@@ -43,7 +43,6 @@ public class SurfaceCheck : MonoBehaviour {
 
         // Calculate bottom of player:
         // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-
         float playerHeight = collider.bounds.size.y;
         float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
 
@@ -56,26 +55,7 @@ public class SurfaceCheck : MonoBehaviour {
 
         float distance = collider.bounds.size.x + collider.edgeRadius;
 
-        if (surface == Surface.ALL)
-        {
-            if (ObjectCast(origin, Vector2.right, distance) != Surface.NONE)
-            {
-                return true;
-            }
-            else if (GroundCast(origin, Vector2.right, distance) != Surface.NONE)
-            {
-                return true;
-            }
-        }
-        else if (ObjectCast(origin, Vector2.right, distance) == surface)
-        {
-            return true;
-        }
-        else if (GroundCast(origin, Vector2.right, distance) == surface)
-        {
-            return true;
-        }
-        return false;
+        return IsTouching(origin, Vector2.up, distance, surface);
     }
 
     /// <summary>
@@ -106,22 +86,31 @@ public class SurfaceCheck : MonoBehaviour {
         Vector2 origin = new Vector2(playerXMin, playerYMin);
 
         float distance = collider.bounds.size.y + collider.edgeRadius;
+
+        return IsTouching(origin, Vector2.up, distance, surface);
+    }
+
+    /// <summary>
+    /// Runs and returns whether the raycast hit the desired target
+    /// </summary>
+    private bool IsTouching(Vector2 origin, Vector2 direction, float distance, Surface surface)
+    {
         if (surface == Surface.ALL)
         {
-            if (ObjectCast(origin, Vector2.up, distance) != Surface.NONE)
+            if (ObjectCast(origin, direction, distance) != Surface.NONE)
             {
                 return true;
             }
-            else if (GroundCast(origin, Vector2.up, distance) != Surface.NONE)
+            else if (GroundCast(origin, direction, distance) != Surface.NONE)
             {
                 return true;
             }
         }
-        else if (ObjectCast(origin, Vector2.up, distance) == surface)
+        else if (ObjectCast(origin, direction, distance) == surface)
         {
             return true;
         }
-        else if (GroundCast(origin, Vector2.up, distance) == surface)
+        else if (GroundCast(origin, direction, distance) == surface)
         {
             return true;
         }
