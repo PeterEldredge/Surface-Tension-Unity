@@ -1,14 +1,12 @@
 fileFormatVersion: 2
-guid: c7f530cac3af44173a79959acebd971b
-timeCreated: 1527119140
+guid: 22c02e3456ea743c493a398659b421f2
+timeCreated: 1527119112
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: new idle sprite sheet_0
-    21300002: new idle sprite sheet_1
-    21300004: new idle sprite sheet_2
-    21300006: new idle sprite sheet_3
-    21300008: new idle sprite sheet_4
+    21300000: pushing sprite sheet_0
+    21300002: pushing sprite sheet_1
+    21300004: pushing sprite sheet_2
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -104,7 +102,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: new idle sprite sheet_0
+      name: pushing sprite sheet_0
       rect:
         serializedVersion: 2
         x: 0
@@ -118,7 +116,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: new idle sprite sheet_1
+      name: pushing sprite sheet_1
       rect:
         serializedVersion: 2
         x: 27
@@ -132,38 +130,10 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: new idle sprite sheet_2
+      name: pushing sprite sheet_2
       rect:
         serializedVersion: 2
         x: 54
-        y: 0
-        width: 27
-        height: 33
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: new idle sprite sheet_3
-      rect:
-        serializedVersion: 2
-        x: 81
-        y: 0
-        width: 27
-        height: 33
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: new idle sprite sheet_4
-      rect:
-        serializedVersion: 2
-        x: 108
         y: 0
         width: 27
         height: 33
