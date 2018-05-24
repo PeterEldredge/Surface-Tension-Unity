@@ -157,6 +157,8 @@ public class Player : MonoBehaviour
 
         // Animate the character
         HandleAnimation(horizontalInput);
+
+        previousState = currentState;
     }
 
     private void SetCurrentState()
@@ -219,7 +221,6 @@ public class Player : MonoBehaviour
                 break;
         }
         pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
-        previousState = currentState; 
     }
 
     /// <summary>
