@@ -469,11 +469,14 @@ public class Player : MonoBehaviour
         // respawn.manualRespawn();
         respawn.manualReset();
     }
+
+    //Function to hold surface changing code
     private void HandleSurface()
     {
         pickSurface();
     }
 
+    //Changes equipped surface with 1, 2, and 3 keys
     public void pickSurface()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
