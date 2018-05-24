@@ -54,6 +54,8 @@ public class Player : MonoBehaviour
         RIGHT = 1
     };
 
+    public SurfaceChange.material equippedMaterial;
+
     /// <summary>
     /// Definition for surfaces the player is touching
     /// </summary>
@@ -114,6 +116,7 @@ public class Player : MonoBehaviour
         previousState.action  = Action.NORMAL;
         previousState.direction = Direction.RIGHT;
         previousState.grabbedObject = null;
+        equippedMaterial = SurfaceChange.material.NONE;
 
         // Script Initializations
         respawn = GetComponent<Respawn>();
@@ -133,6 +136,8 @@ public class Player : MonoBehaviour
         JumpDown();
 
         HandleRespawn();
+
+        HandleSurface();
     }
 
     // Update called at a fixed delta time
@@ -463,5 +468,27 @@ public class Player : MonoBehaviour
     {
         // respawn.manualRespawn();
         respawn.manualReset();
+    }
+    private void HandleSurface()
+    {
+        pickSurface();
+    }
+
+   
+
+    public void pickSurface()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            equippedMaterial = SurfaceChange.material.BOUNCE;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            equippedMaterial = SurfaceChange.material.SLIP;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            equippedMaterial = SurfaceChange.material.STICK;
+        }
     }
 }
