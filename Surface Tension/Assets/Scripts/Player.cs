@@ -25,24 +25,66 @@ public class Player : MonoBehaviour
     /// </summary>
     public float slopeSpeed;
 
+    /// <summary>
+    /// The horizontal input from the player every frame
+    /// </summary>
     float horizontalInput;
 
+    /// <summary>
+    /// The velocity that will get the player to their max jump height
+    /// </summary>
     public float maxHeightVelocity;
+
+    /// <summary>
+    /// The velocity that will get the player to their min jump height/how high they will go after releasing the jump button
+    /// </summary>
     public float minHeightVelocity;
 
+    /// <summary>
+    /// The gravity scale that affects the player when their rigidbody's y velocity is greater than 0
+    /// </summary>
     public float upGravity;
+
+    /// <summary>
+    /// The gravity scale that affects the player when their rigidbody's y velocity is less than 0
+    /// </summary>
     public float downGravity;
 
+    /// <summary>
+    /// An additional value added on to the origin of a ray cast to make grab distances a little more lenient in certain cases
+    /// </summary>
     public float grabLeniency;
 
+    /// <summary>
+    /// If true, on the next fixed frame the maxHeightVelocity will be applied to the player
+    /// Changes to true when jump button is pushed, false after velocity has been set.
+    /// </summary>
     private bool applyMaxUpwards = false;
+
+    /// <summary>
+    /// If true, on the next fixed frame the minHeightVelocity will be applied to the player
+    /// Changes to true when jump button is released, false after velocity has been set
+    /// </summary>
     private bool applyMinUpwards = false;
 
+    /// <summary>
+    /// If true, the object the player is currently running into is against a wall
+    /// </summary>
     private bool objectAgainstWall = false;
 
+    /// <summary>
+    /// Holds the current state of the player
+    /// </summary>
     private State currentState;
+
+    /// <summary>
+    /// Holds the state of the player from the last frame
+    /// </summary>
     private State previousState;
 
+    /// <summary>
+    /// The player's currently equiped material
+    /// </summary>
     public SurfaceChange.material equippedMaterial;
 
     //Initializes pBody, this will be the player's Rigidbody2D component 
@@ -117,7 +159,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        objectAgainstWall = false;
+        CleanUp();
 
         // Get player input
         horizontalInput = Input.GetAxis("Horizontal");
@@ -153,19 +195,27 @@ public class Player : MonoBehaviour
         previousState = currentState;
     }
 
+    /// <summary>
+    /// Cleans up changed variables from the previous frame
+    /// </summary>
+    private void CleanUp()
+    {
+        objectAgainstWall = false;
+    }
+
     // Collects/sets info for the frame
     private void SetCurrentState()
     {
         currentState.direction = inputDirection ?? previousState.direction;
-        if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetKey(KeyCode.LeftShift)))
+        if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
         {
             currentState.action = Action.PUSHING; // The player is pushing an object
-            currentState.grabbedObject = GrabbedObjectCast(currentState.direction, currentState.action); // Finds the object the player is currently grabbing
+            currentState.grabbedObject = GrabbedObjectCast(currentState.direction); // Finds the object the player is currently grabbing
         }
         else if (Touching(oppositeDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetKey(KeyCode.LeftShift)))
         {
             currentState.action = Action.PULLING; // The player is pulling an object
-            currentState.grabbedObject = GrabbedObjectCast(oppositeDirection, currentState.action);
+            currentState.grabbedObject = GrabbedObjectCast(oppositeDirection);
         }
         else if (Touching(inputDirection, Surface.SLOPE, 0) && TouchingGround(Surface.ALL))
         {
@@ -242,11 +292,11 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns if the jump key is being held down
+    /// Sets when the player presses the jump key and when they release it
     /// </summary>
     private void JumpDown()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump")) && TouchingGround(Surface.ALL))
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump")) && TouchingGround(Surface.ALL) && currentState.action != Action.UPSLOPE)
         {
             applyMaxUpwards = true;
         }
@@ -256,6 +306,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Applies velocity in the y direction to the player and sets the velocity of the player's fall
+    /// </summary>
     private void HandleJump()
     {
         if (applyMaxUpwards && TouchingGround(Surface.ALL))
@@ -306,14 +359,14 @@ public class Player : MonoBehaviour
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
     private void IsStuck()
     {
-        if (Touching(Direction.RIGHT, Surface.ALL, 0) && Touching(Direction.LEFT, Surface.ALL, 0) && pBody.velocity.y == 0 && !TouchingGround(Surface.ALL))
+        if (Touching(Direction.RIGHT, Surface.ALL, 0) && Touching(Direction.LEFT, Surface.ALL, 0) && Mathf.Abs(pBody.velocity.y) <= .1f && !TouchingGround(Surface.ALL))
         {
-            pBody.velocity =  -1 * Vector2.up * 5;
+            pBody.velocity =  -1 * Vector2.up * 8;
         }
     }
 
     /// <summary>
-    /// Returns whether player is touching ground
+    /// Returns whether player is standing on the specified surface
     /// </summary>
     private bool TouchingGround(Surface surface)
     {
@@ -396,6 +449,9 @@ public class Player : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Using raycast information, checks for objects and determines their current state
+    /// </summary>
     private Surface ObjectCast(Vector2 origin, Vector2 direction, float distance)
     {
         RaycastHit2D raycast = Physics2D.Raycast(origin, direction, distance, LayerMask.GetMask("Object"));
@@ -414,7 +470,10 @@ public class Player : MonoBehaviour
         return Surface.NONE;
     }
 
-    private GameObject GrabbedObjectCast(Direction? direction, Action action)
+    /// <summary>
+    /// Returns the object the player is grabbing
+    /// </summary>
+    private GameObject GrabbedObjectCast(Direction? direction)
     {
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
@@ -425,16 +484,16 @@ public class Player : MonoBehaviour
         // Calculate distance to left edge of player:
         // Half the collider + the radius + a little
         // Left or Right determines the side of the player the ray is being shot from
-        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f;
+        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + grabLeniency;
 
         // If checking left, subtract the distance
         if (direction == Direction.LEFT)
         {
-            playerXMin = collider.bounds.center.x - playerXMin - grabLeniency;
+            playerXMin = collider.bounds.center.x - playerXMin;
         }
         else
         {
-            playerXMin = collider.bounds.center.x + playerXMin + grabLeniency;
+            playerXMin = collider.bounds.center.x + playerXMin;
         }
 
         // Create vector positioned at bottom of player sprite

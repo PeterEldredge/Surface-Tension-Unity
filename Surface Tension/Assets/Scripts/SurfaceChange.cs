@@ -14,17 +14,19 @@ public class SurfaceChange : MonoBehaviour {
     }
 
     //new color, will be changed to materials once the surfaces are implemented
-    public Color ncol;
+    [HideInInspector]
+    public Color newColor;
     //original color, necessary for returning the surface to its original state with right click
-    public Color ocol;
+    [HideInInspector]
+    public Color originalColor;
     //instance of player object
     Player player;    
 
     void Start()
     {
         player = GameObject.Find("Player").GetComponent<Player>();
-        ncol = GetComponent<Renderer>().material.color;
-        ocol = GetComponent<Renderer>().material.color;
+        newColor = GetComponent<Renderer>().material.color;
+        originalColor = GetComponent<Renderer>().material.color;
     }
 
     //For right clicking to remove surfaces
@@ -32,7 +34,7 @@ public class SurfaceChange : MonoBehaviour {
     {
         if (Input.GetMouseButton(1))
         {
-            GetComponent<Renderer>().material.color = ocol;
+            GetComponent<Renderer>().material.color = originalColor;
         }
     }
 
@@ -41,16 +43,16 @@ public class SurfaceChange : MonoBehaviour {
     {
         if (player.equippedMaterial == material.BOUNCE)
         {
-            ncol = Color.blue;
+            newColor = Color.blue;
         }
         if (player.equippedMaterial == material.SLIP)
         {
-            ncol = Color.red;
+            newColor = Color.red;
         }
         if (player.equippedMaterial == material.STICK)
         {
-            ncol = Color.yellow;
+            newColor = Color.yellow;
         }
-        GetComponent<Renderer>().material.color = ncol;
+        GetComponent<Renderer>().material.color = newColor;
     }
 }

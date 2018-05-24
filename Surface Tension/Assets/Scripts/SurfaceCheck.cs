@@ -25,7 +25,10 @@ public class SurfaceCheck : MonoBehaviour {
         NONE
     };
 
+    [HideInInspector]
     public bool touchingLeftWall = false;
+
+    [HideInInspector]
     public bool touchingRightWall = false;
 
     // Update is called once per frame
@@ -67,7 +70,7 @@ public class SurfaceCheck : MonoBehaviour {
 
         // Calculate bottom of object:
         // Bottom of BoxCollider
-        float objectYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
+        float objectYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f) - .02f;
 
         // Calculate distance to left edge of object:
         // Half the collider + the radius + a little
@@ -85,7 +88,7 @@ public class SurfaceCheck : MonoBehaviour {
         // Create vector positioned at bottom of object sprite
         Vector2 origin = new Vector2(objectXMin, objectYMin);
 
-        float distance = collider.bounds.size.y + collider.edgeRadius;
+        float distance = collider.bounds.size.y + collider.edgeRadius + .04f;
 
         return IsTouching(origin, Vector2.up, distance, surface);
     }
