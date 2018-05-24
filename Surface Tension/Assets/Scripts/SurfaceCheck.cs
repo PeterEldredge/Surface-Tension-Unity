@@ -5,7 +5,7 @@ using UnityEngine;
 public class SurfaceCheck : MonoBehaviour {
 
     /// <summary>
-    /// Definition for direction player is facing
+    /// Definition for direction object is facing
     /// </summary>
     public enum Direction
     {
@@ -14,7 +14,7 @@ public class SurfaceCheck : MonoBehaviour {
     };
 
     /// <summary>
-    /// Definition for surface the player is touching
+    /// Definition for surface the object is touching
     /// </summary>
     public enum Surface
     {
@@ -35,23 +35,23 @@ public class SurfaceCheck : MonoBehaviour {
 	}
 
     /// <summary>
-    /// Returns whether player is touching ground
+    /// Returns whether object is touching ground
     /// </summary>
     private bool TouchingGround(Surface surface)
     {
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
-        // Calculate bottom of player:
+        // Calculate bottom of object:
         // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-        float playerHeight = collider.bounds.size.y;
-        float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
+        float objectHeight = collider.bounds.size.y;
+        float objectBottom = collider.bounds.center.y - (objectHeight / 2F) - collider.edgeRadius - .05f;
 
-        // Calculate left edge of player:
+        // Calculate left edge of object:
         // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
-        float playerXMin = collider.bounds.center.x - (collider.bounds.size.x / 2) - (collider.edgeRadius / 2);
+        float objectXMin = collider.bounds.center.x - (collider.bounds.size.x / 2) - (collider.edgeRadius / 2);
 
-        // Create vector positioned at bottom of player sprite
-        Vector2 origin = new Vector2(playerXMin, playerBottom);
+        // Create vector positioned at bottom of object sprite
+        Vector2 origin = new Vector2(objectXMin, objectBottom);
 
         float distance = collider.bounds.size.x + collider.edgeRadius;
 
@@ -59,31 +59,31 @@ public class SurfaceCheck : MonoBehaviour {
     }
 
     /// <summary>
-    /// If player is touching an object, return it
+    /// If object is touching an object, return it
     /// </summary>
     private bool Touching(Direction? direction, Surface surface)
     {
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
-        // Calculate bottom of player:
+        // Calculate bottom of object:
         // Bottom of BoxCollider
-        float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
+        float objectYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
 
-        // Calculate distance to left edge of player:
+        // Calculate distance to left edge of object:
         // Half the collider + the radius + a little
-        // Left or Right determines the side of the player the ray is being shot from
-        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f;
+        // Left or Right determines the side of the object the ray is being shot from
+        float objectXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .03f;
         if (direction == Direction.LEFT)
         {
-            playerXMin = collider.bounds.center.x - playerXMin;
+            objectXMin = collider.bounds.center.x - objectXMin;
         }
         else
         {
-            playerXMin = collider.bounds.center.x + playerXMin;
+            objectXMin = collider.bounds.center.x + objectXMin;
         }
 
-        // Create vector positioned at bottom of player sprite
-        Vector2 origin = new Vector2(playerXMin, playerYMin);
+        // Create vector positioned at bottom of object sprite
+        Vector2 origin = new Vector2(objectXMin, objectYMin);
 
         float distance = collider.bounds.size.y + collider.edgeRadius;
 

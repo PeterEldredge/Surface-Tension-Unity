@@ -199,12 +199,18 @@ public class Player : MonoBehaviour
             case Action.PUSHING:
                 distAway = horizontalInput * pushSpeed * Time.deltaTime;
                 moveSpeed = pushSpeed;
-                currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                if (!objectAgainstWall)
+                {
+                    currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                }
                 break;
             case Action.PULLING:
                 distAway = horizontalInput * pullSpeed * Time.deltaTime;
                 moveSpeed = pullSpeed;
-                currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                if(!Touching(inputDirection, Surface.ALL, 0))
+                {
+                    currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                }
                 break;
             case Action.UPSLOPE:
                 moveSpeed = slopeSpeed;
