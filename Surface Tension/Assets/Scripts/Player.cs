@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
     public struct State
     {
         public Action action;
-        public Direction? direction;
+        public Direction direction;
         public GameObject grabbedObject;
     };
 
@@ -91,7 +91,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Direction player is currently facing
     /// </summary>
-    private Direction animDirection;
+    // private Direction animDirection;
     private Direction? inputDirection;
     private Direction? oppositeDirection;
 
@@ -156,7 +156,7 @@ public class Player : MonoBehaviour
 
     private void SetCurrentState()
     {
-        currentState.direction = inputDirection;
+        currentState.direction = inputDirection ?? previousState.direction;
         if (Touching(inputDirection, Surface.OBJECT, collisionLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
         {
             currentState.action = Action.PUSHING; // The player is pushing an object
@@ -214,7 +214,7 @@ public class Player : MonoBehaviour
                 break;
         }
         pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
-        previousState = currentState;
+        previousState = currentState; 
     }
 
     /// <summary>
@@ -222,17 +222,16 @@ public class Player : MonoBehaviour
     /// </summary>
     private void HandleAnimation(float horizontalInput)
     {
-        animDirection = GetDirection(horizontalInput) ?? animDirection;
         moving = GetDirection(horizontalInput * pBody.velocity.x) != null;
 
-        GetComponent<Animator>().SetInteger("Direction", (int)animDirection);
+        GetComponent<Animator>().SetInteger("Direction", (int)currentState.direction);
         GetComponent<Animator>().SetBool("Moving", moving);
         GetComponent<Animator>().SetBool("Pushing", currentState.action == Action.PUSHING);
         
-        if(animDirection.Equals(Direction.LEFT)) {
+        if(currentState.direction.Equals(Direction.LEFT)) {
             GetComponent<SpriteRenderer>().flipX = true;
         }
-        else if(animDirection.Equals(Direction.RIGHT)) {
+        else if(currentState.direction.Equals(Direction.RIGHT)) {
             GetComponent<SpriteRenderer>().flipX = false;
         }
     }
