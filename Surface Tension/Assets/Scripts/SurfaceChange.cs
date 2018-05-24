@@ -14,28 +14,27 @@ public class SurfaceChange : MonoBehaviour {
 
     public Color ncol;
     private material currentS;
-    Player p1;    
+    Player player;    
 
     void Start()
     {
-        p1 = GameObject.Find("Player").GetComponent<Player>();
+        player = GameObject.Find("Player").GetComponent<Player>();
     }
 
     void OnMouseDown()
     {
-        if (p1.equippedMaterial == material.BOUNCE)
+        if (player.equippedMaterial == material.BOUNCE)
         {
             ncol = Color.blue;
         }
-        if (p1.equippedMaterial == material.SLIP)
+        if (player.equippedMaterial == material.SLIP)
         {
             ncol = Color.red;
         }
-        if (p1.equippedMaterial == material.STICK)
+        if (player.equippedMaterial == material.STICK)
         {
             ncol = Color.yellow;
         }
-
         GetComponent<Renderer>().material.color = ncol;
     }
 }
