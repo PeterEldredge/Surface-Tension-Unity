@@ -207,16 +207,21 @@ public class Player : MonoBehaviour
     private void SetCurrentState()
     {
         currentState.direction = inputDirection ?? previousState.direction;
-        if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
+
+        if(inputDirection != null) 
         {
-            currentState.action = Action.PUSHING; // The player is pushing an object
-            currentState.grabbedObject = GrabbedObjectCast(currentState.direction); // Finds the object the player is currently grabbing
+            if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
+            {
+                currentState.action = Action.PUSHING; // The player is pushing an object
+                currentState.grabbedObject = GrabbedObjectCast(currentState.direction); // Finds the object the player is currently grabbing
+            }
+            else if (Touching(oppositeDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetKey(KeyCode.LeftShift)))
+            {
+                currentState.action = Action.PULLING; // The player is pulling an object
+                currentState.grabbedObject = GrabbedObjectCast(oppositeDirection);
+            }
         }
-        else if (Touching(oppositeDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetKey(KeyCode.LeftShift)))
-        {
-            currentState.action = Action.PULLING; // The player is pulling an object
-            currentState.grabbedObject = GrabbedObjectCast(oppositeDirection);
-        }
+        
         else if (Touching(inputDirection, Surface.SLOPE, 0) && TouchingGround(Surface.ALL))
         {
             currentState.action = Action.UPSLOPE; // The player is walking up a slope
