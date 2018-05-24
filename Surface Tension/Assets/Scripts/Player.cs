@@ -527,7 +527,7 @@ public class Player : MonoBehaviour
         return Surface.NONE;
     }
 
-    // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
+    // If R is pressed, the current scene will reset
     private void HandleRespawn()
     {
         // respawn.manualRespawn();
