@@ -18,7 +18,7 @@ public class Respawn : MonoBehaviour {
 
     public void manualReset()
     {
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetButtonDown("Restart"))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }

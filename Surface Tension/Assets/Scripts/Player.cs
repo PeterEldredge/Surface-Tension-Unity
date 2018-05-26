@@ -136,7 +136,6 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Direction player is currently facing
     /// </summary>
-    // private Direction animDirection;
     private Direction? inputDirection;
     private Direction? oppositeDirection;
 
@@ -154,6 +153,9 @@ public class Player : MonoBehaviour
 
         // Script Initializations
         respawn = GetComponent<Respawn>();
+
+        // Initializes equipped material to "bounce"
+        equippedMaterial = SurfaceChange.material.BOUNCE;
     }
 
     // Update is called once per frame
@@ -207,12 +209,12 @@ public class Player : MonoBehaviour
     private void SetCurrentState()
     {
         currentState.direction = inputDirection ?? previousState.direction;
-        if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetKey(KeyCode.LeftShift)))
+        if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetButton("Grab")))
         {
             currentState.action = Action.PUSHING; // The player is pushing an object
             currentState.grabbedObject = GrabbedObjectCast(currentState.direction); // Finds the object the player is currently grabbing
         }
-        else if (Touching(oppositeDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetKey(KeyCode.LeftShift)))
+        else if (Touching(oppositeDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetButton("Grab")))
         {
             currentState.action = Action.PULLING; // The player is pulling an object
             currentState.grabbedObject = GrabbedObjectCast(oppositeDirection);
@@ -296,11 +298,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private void JumpDown()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Jump")) && TouchingGround(Surface.ALL) && currentState.action != Action.UPSLOPE)
+        if (Input.GetButtonDown("Jump") && TouchingGround(Surface.ALL))// && currentState.action != Action.UPSLOPE)
         {
             applyMaxUpwards = true;
         }
-        if (Input.GetKeyUp(KeyCode.Space) || Input.GetButtonUp("Jump"))
+        if (Input.GetButtonUp("Jump"))
         {
             applyMinUpwards = true;
         }
@@ -409,10 +411,12 @@ public class Player : MonoBehaviour
         if (direction == Direction.LEFT)
         {
             playerXMin = collider.bounds.center.x - playerXMin;
-        } else
+        }
+        else if (direction == Direction.RIGHT)
         {
             playerXMin = collider.bounds.center.x + playerXMin;
         }
+        else return false;
 
         // Create vector positioned at bottom of player sprite
         Vector2 origin = new Vector2(playerXMin, playerYMin);
@@ -502,11 +506,16 @@ public class Player : MonoBehaviour
         float distance = collider.bounds.size.y + collider.edgeRadius;
 
         RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.up, distance, LayerMask.GetMask("Object"));
-        return raycast.collider.gameObject;
+        if (raycast.collider.gameObject != null)
+        {
+            return raycast.collider.gameObject;
+        }
+        return null;
     }
 
     private Surface GroundCast(Vector2 origin, Vector2 direction, float distance)
     {
+
         RaycastHit2D raycast = Physics2D.Raycast(origin, direction, distance, LayerMask.GetMask("Ground"));
         if (raycast.collider != null)
         {
