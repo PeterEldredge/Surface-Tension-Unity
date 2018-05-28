@@ -85,7 +85,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// The player's currently equiped material
     /// </summary>
-    public SurfaceChange.material equippedMaterial;
+    public GameController.material equippedMaterial;
 
     //Initializes pBody, this will be the player's Rigidbody2D component 
     Rigidbody2D pBody;
@@ -95,7 +95,8 @@ public class Player : MonoBehaviour
     /// </summary>
     public enum Direction {
         LEFT = -1,
-        RIGHT = 1
+        RIGHT = 1,
+        DOWN = 2
     };
 
     /// <summary>
@@ -118,7 +119,6 @@ public class Player : MonoBehaviour
         public Action action;
         public Direction direction;
         public GameObject grabbedObject;
-        public GameObject groundObject;
     };
 
     /// <summary>
@@ -155,7 +155,7 @@ public class Player : MonoBehaviour
         respawn = GetComponent<Respawn>();
 
         // Initializes equipped material to "bounce"
-        equippedMaterial = SurfaceChange.material.BOUNCE;
+        equippedMaterial = GameController.material.BOUNCE;
     }
 
     // Update is called once per frame
@@ -549,15 +549,15 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            equippedMaterial = SurfaceChange.material.BOUNCE;
+            equippedMaterial = GameController.material.BOUNCE;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            equippedMaterial = SurfaceChange.material.SLIP;
+            equippedMaterial = GameController.material.SLIP;
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            equippedMaterial = SurfaceChange.material.STICK;
+            equippedMaterial = GameController.material.STICK;
         }
     }
 }

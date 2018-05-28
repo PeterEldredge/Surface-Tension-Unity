@@ -15,15 +15,15 @@ public class SurfaceGUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (player.equippedMaterial == SurfaceChange.material.BOUNCE)
+        if (player.equippedMaterial == GameController.material.BOUNCE)
         {
             scol = Color.blue;
         }
-        if (player.equippedMaterial == SurfaceChange.material.SLIP)
+        if (player.equippedMaterial == GameController.material.SLIP)
         {
             scol = Color.red;
         }
-        if (player.equippedMaterial == SurfaceChange.material.STICK)
+        if (player.equippedMaterial == GameController.material.STICK)
         {
             scol = Color.yellow;
         }

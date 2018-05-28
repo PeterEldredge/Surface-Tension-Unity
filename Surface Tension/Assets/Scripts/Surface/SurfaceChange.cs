@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class SurfaceChange : MonoBehaviour {
 
-    //List of our surfaces as enums
-    public enum material
-    {
-        NONE,
-        BOUNCE,
-        SLIP,
-        STICK
-    }
-
     //new color, will be changed to materials once the surfaces are implemented
     [HideInInspector]
     public Color newColor;
@@ -41,15 +32,15 @@ public class SurfaceChange : MonoBehaviour {
     //Only works for left clicking, for changing surfaces
     void OnMouseDown()
     {
-        if (player.equippedMaterial == material.BOUNCE)
+        if (player.equippedMaterial == GameController.material.BOUNCE)
         {
             newColor = Color.blue;
         }
-        if (player.equippedMaterial == material.SLIP)
+        if (player.equippedMaterial == GameController.material.SLIP)
         {
             newColor = Color.red;
         }
-        if (player.equippedMaterial == material.STICK)
+        if (player.equippedMaterial == GameController.material.STICK)
         {
             newColor = Color.yellow;
         }
