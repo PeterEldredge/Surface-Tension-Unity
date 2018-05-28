@@ -19,4 +19,16 @@ public class SurfaceMaterial : MonoBehaviour
     /// </summary>
     GameController.material type;
 
+    
+    void Start()
+    {
+        SetTiling();
+    }
+
+    void SetTiling()
+    {
+        Debug.Log("Surface " + name + ": tiling texture");
+        GetComponent<Renderer>().material.mainTextureScale = transform.localScale;
+    }
+
 }
