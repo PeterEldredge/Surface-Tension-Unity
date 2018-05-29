@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Maximum speed player can move (modified by ground contact with surface)
     /// </summary>
-    public float defaultSpeed;
+    public float topSpeed;
 
     /// <summary>
     /// Speed at which player pushes a block
@@ -185,6 +186,8 @@ public class Player : MonoBehaviour
     // Update called at a fixed delta time
     void FixedUpdate () 
 	{
+        SetTopSpeed();
+        
         // Handles changing y velocity
         HandleJump();
 
@@ -195,6 +198,14 @@ public class Player : MonoBehaviour
         HandleAnimation(horizontalInput);
 
         previousState = currentState;
+    }
+
+    /// <summary>
+    /// Sets defaultSpeed to 
+    /// </summary>
+    private void SetTopSpeed()
+    {
+        // TODO: get top speed from surface player is standing on, and assign to player
     }
 
     /// <summary>
@@ -245,7 +256,7 @@ public class Player : MonoBehaviour
     private void HandleMovement(float horizontalInput)
     {
         float distAway;
-        float moveSpeed = defaultSpeed;
+        float moveSpeed = topSpeed;
         switch (currentState.action)
         {
             case Action.PUSHING:

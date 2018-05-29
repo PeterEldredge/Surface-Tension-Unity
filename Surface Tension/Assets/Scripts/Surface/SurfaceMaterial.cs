@@ -15,7 +15,7 @@ public class SurfaceMaterial : MonoBehaviour
     public bool changeable;
 
     /// <summary>
-    /// Type of material on this surface 
+    /// Type of material on this surface
     /// </summary>
     protected GameController.material type;
 
