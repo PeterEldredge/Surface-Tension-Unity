@@ -19,21 +19,71 @@ public class SurfaceMaterial : MonoBehaviour
     /// </summary>
     protected GameController.material type;
 
+    /// <summary>
+    /// Reference to player
+    /// </summary>
+    protected Player player;
+
     
     void Start()
     {
         SetTiling();
+        player = GameObject.FindWithTag("GameController").GetComponent<GameController>().player;
     }
 
+    /// <summary>
+    /// Configures material to tile according to quad scale
+    /// </summary>
     void SetTiling()
     {
         Debug.Log("Surface " + name + ": tiling texture");
         GetComponent<Renderer>().material.mainTextureScale = transform.localScale;
     }
 
+    /// <summary>
+    /// Returns surface's material type
+    /// </summary>
+    /// <returns></returns>
     public GameController.material GetMaterial()
     {
         return type;
+    }
+
+    /// <summary>
+    /// Right click reverts material to original color, left click assigns it the player's equipped color
+    /// </summary>
+    void OnMouseOver()
+    {
+        if(changeable) {
+            // Left click
+            if (Input.GetMouseButton(0))
+            {
+                ChangeMaterial();
+            }
+            // Right click
+            else if (Input.GetMouseButton(1))
+            {
+                GetComponent<Renderer>().material.color = Color.white;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Changes the appearance of the material (currently just changes color)
+    /// </summary>
+    void ChangeMaterial()
+    {
+        switch(player.equippedMaterial) {
+            case GameController.material.BOUNCE:
+                GetComponent<Renderer>().material.color = Color.blue;
+                break;
+            case GameController.material.SLIP:
+                GetComponent<Renderer>().material.color = Color.red;
+                break;
+            case GameController.material.STICK:
+                GetComponent<Renderer>().material.color = Color.yellow;
+                break;
+        }
     }
 
 }
