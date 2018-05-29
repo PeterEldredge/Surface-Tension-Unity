@@ -17,7 +17,7 @@ public class SurfaceMaterial : MonoBehaviour
     /// <summary>
     /// Type of material on this surface
     /// </summary>
-    protected GameController.material type;
+    public GameController.material type { get; protected set; }
 
     /// <summary>
     /// Reference to player
@@ -38,15 +38,6 @@ public class SurfaceMaterial : MonoBehaviour
     {
         Debug.Log("Surface " + name + ": tiling texture");
         GetComponent<Renderer>().material.mainTextureScale = transform.localScale;
-    }
-
-    /// <summary>
-    /// Returns surface's material type
-    /// </summary>
-    /// <returns></returns>
-    public GameController.material GetMaterial()
-    {
-        return type;
     }
 
     /// <summary>
