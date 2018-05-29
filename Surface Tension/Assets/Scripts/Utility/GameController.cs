@@ -19,13 +19,40 @@ public class GameController : MonoBehaviour {
 	public Player player;
 
     /// <summary>
-    /// Mapping of materials to top speeds
+    /// Mapping of materials to movement speeds
     /// </summary>
     /// <returns></returns>
-    public Dictionary<GameController.material, float> topSpeedMapping = new Dictionary<material, float> {
-        { material.NONE, 6F },
-        { material.BOUNCE, 6F },
-        { material.SLIP, 10F },
-        { material.STICK, 3F }
+    public Dictionary<GameController.material, SurfaceSpeeds> topSpeedMapping = new Dictionary<material, SurfaceSpeeds> {
+        { material.NONE, new SurfaceSpeeds {
+            defaultSpeed = 4F,
+            upSlopeSpeed = 2.5F,
+            pushSpeed = 1.5F,
+            pullSpeed = 1.5F
+        }},
+        { material.SLIP, new SurfaceSpeeds {
+            defaultSpeed = 8F,
+            upSlopeSpeed = 6.5F,
+            pushSpeed = 5.5F,
+            pullSpeed = 5.5F
+        }},
+        { material.BOUNCE, new SurfaceSpeeds {
+            defaultSpeed = 4F,
+            upSlopeSpeed = 2.5F,
+            pushSpeed = 1.5F,
+            pullSpeed = 1.5F
+        }},
+        { material.STICK, new SurfaceSpeeds {
+            defaultSpeed = 2F,
+            upSlopeSpeed = .5F,
+            pushSpeed = 0,
+            pullSpeed = 0
+        }}
     };
+
+    public struct SurfaceSpeeds {
+        public float defaultSpeed;
+        public float upSlopeSpeed;
+        public float pushSpeed;
+        public float pullSpeed;
+    }
 }
