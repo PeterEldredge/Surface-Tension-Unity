@@ -9,7 +9,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Maximum speed player can move (modified by ground contact with surface)
     /// </summary>
-    public float topSpeed;
+    public float defaultSpeed;
 
     /// <summary>
     /// Speed at which player pushes a block
@@ -74,6 +74,11 @@ public class Player : MonoBehaviour
     private bool objectAgainstWall = false;
 
     /// <summary>
+    /// If true, the object the player is currently holding the grab button
+    /// </summary>
+    private bool grabbing = false;
+
+    /// <summary>
     /// Holds the current state of the player
     /// </summary>
     private State currentState;
@@ -119,7 +124,14 @@ public class Player : MonoBehaviour
     {
         public Action action;
         public Direction direction;
+        public Direction oppDirection;
         public GameObject grabbedObject;
+        
+        public GameObject objFaceDir; // The object the player is facing
+        public GameObject surfFaceDir; // The surface the player is facing    
+        public GameObject objOppDir; // The object opposite the side the player is facing
+        public GameObject surfOppDir; // The surface opposite the side the player is facing   
+        public GameObject surfGround; // The game object on the ground
     };
 
     /// <summary>
@@ -162,18 +174,17 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Cleans up all variables
         CleanUp();
 
-        // Get player input
-        horizontalInput = Input.GetAxis("Horizontal");
-        inputDirection = GetDirection(horizontalInput);
-        oppositeDirection = GetDirection(-1 * horizontalInput);
+        //Gets all player inputs
+        GetInput();
 
-        //Checks jump key
-        JumpDown();
+        // Set the player's current surrondings
+        SetCurrentSurroundings();
 
-        // Set the player's current state
-        SetCurrentState();
+        // Set the player's current action
+        SetCurrentAction();
 
         // Move the character
         HandleMovement(horizontalInput);
@@ -195,7 +206,7 @@ public class Player : MonoBehaviour
         IsStuck();
 
         // Animate the character
-        HandleAnimation(horizontalInput);
+        HandleAnimation();
 
         previousState = currentState;
     }
@@ -214,30 +225,73 @@ public class Player : MonoBehaviour
     private void CleanUp()
     {
         objectAgainstWall = false;
+        grabbing = false;
     }
 
-    // Collects/sets info for the frame
-    private void SetCurrentState()
+    /// <summary>
+    /// Gets the tag of a Game Object
+    /// </summary>
+    private string GetTag(GameObject gameObject)
     {
-        currentState.direction = inputDirection ?? previousState.direction;
-        if (Touching(inputDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND) || TouchingGround(Surface.SLOPE)) && (Input.GetButton("Grab")))
+        if (gameObject != null)
+        {
+            return gameObject.tag;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private void GetInput()
+    {
+        // Get player input (horizontal)
+        horizontalInput = Input.GetAxis("Horizontal");
+        currentState.direction = GetDirection(horizontalInput) ?? previousState.direction;
+        currentState.oppDirection = GetDirection(-1 * horizontalInput) ?? previousState.oppDirection;
+
+        grabbing = Input.GetButton("Grab");
+
+        //Checks jump key
+        JumpDown();
+    }
+
+    private void SetCurrentSurroundings()
+    {
+        float appliedLeniency = 0;     
+
+        if (grabbing) // If the player is currently holding the grab button, apply leniency to the object cast check
+        {
+            appliedLeniency = grabLeniency;
+        }
+        currentState.objFaceDir = rayCheck(currentState.direction, "Object", appliedLeniency);
+        currentState.objOppDir = rayCheck(currentState.oppDirection, "Object", appliedLeniency);
+
+        currentState.surfFaceDir = rayCheck(currentState.direction, "Ground", 0);
+        currentState.surfOppDir = rayCheck(currentState.oppDirection, "Ground", 0);
+
+        currentState.surfGround = rayCheck(Direction.DOWN, null, 0);
+    }
+
+    // Collects/sets action for the frame
+    private void SetCurrentAction()
+    {
+        if (currentState.objFaceDir && (GetTag(currentState.surfGround) == "Slope" || GetTag(currentState.surfGround) == "Ground") && grabbing)
         {
             currentState.action = Action.PUSHING; // The player is pushing an object
-            currentState.grabbedObject = GrabbedObjectCast(currentState.direction); // Finds the object the player is currently grabbing
+            currentState.grabbedObject = currentState.objFaceDir; // Finds the object the player is currently grabbing
         }
-        else if (Touching(oppositeDirection, Surface.OBJECT, grabLeniency) && (TouchingGround(Surface.GROUND)) && (Input.GetButton("Grab")))
+        else if (currentState.objOppDir && (GetTag(currentState.surfGround) == "Ground") && grabbing)
         {
             currentState.action = Action.PULLING; // The player is pulling an object
-            currentState.grabbedObject = GrabbedObjectCast(oppositeDirection);
+            currentState.grabbedObject = currentState.objOppDir;
         }
-        else if (Touching(inputDirection, Surface.SLOPE, 0) && TouchingGround(Surface.ALL))
+        else if (GetTag(currentState.surfFaceDir) == "Slope" && currentState.surfGround)
         {
             currentState.action = Action.UPSLOPE; // The player is walking up a slope
             currentState.grabbedObject = null;
         }
-        else if ((Touching(inputDirection, Surface.ALL, 0) && !TouchingGround(Surface.ALL))
-            || (Touching(inputDirection, Surface.ALL, 0) && TouchingGround(Surface.ALL))
-            || objectAgainstWall)
+        else if ((currentState.objFaceDir || currentState.surfFaceDir) || objectAgainstWall)
         {
             currentState.action = Action.AGAINSTWALL; // The player is agaist a wall
             currentState.grabbedObject = null;
@@ -247,6 +301,20 @@ public class Player : MonoBehaviour
             currentState.action = Action.NORMAL;
             currentState.grabbedObject = null;
         }
+
+        //Sets if the object is against a wall in the direction the player is pushing it
+        if (currentState.action == Action.PUSHING)
+        {
+            if (currentState.direction == Direction.LEFT)
+            {
+                objectAgainstWall = currentState.grabbedObject.GetComponent<SurfaceCheck>().touchingLeftWall;
+            }
+            else if (currentState.direction == Direction.RIGHT)
+            {
+                objectAgainstWall = currentState.grabbedObject.GetComponent<SurfaceCheck>().touchingRightWall;
+            }
+        }
+
     }
 
     /// <summary>
@@ -256,7 +324,7 @@ public class Player : MonoBehaviour
     private void HandleMovement(float horizontalInput)
     {
         float distAway;
-        float moveSpeed = topSpeed;
+        float moveSpeed = defaultSpeed;
         switch (currentState.action)
         {
             case Action.PUSHING:
@@ -270,7 +338,7 @@ public class Player : MonoBehaviour
             case Action.PULLING:
                 distAway = horizontalInput * pullSpeed * Time.deltaTime;
                 moveSpeed = pullSpeed;
-                if(!Touching(inputDirection, Surface.ALL, 0))
+                if(!currentState.surfFaceDir && !currentState.objFaceDir)
                 {
                     currentState.grabbedObject.transform.Translate(distAway, 0, 0);
                 }
@@ -288,7 +356,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Animate player based on horizontal input
     /// </summary>
-    private void HandleAnimation(float horizontalInput)
+    private void HandleAnimation()
     {
         moving = GetDirection(horizontalInput * pBody.velocity.x) != null;
 
@@ -309,7 +377,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private void JumpDown()
     {
-        if (Input.GetButtonDown("Jump") && TouchingGround(Surface.ALL))// && currentState.action != Action.UPSLOPE)
+        if (Input.GetButtonDown("Jump") && currentState.surfGround)// && currentState.action != Action.UPSLOPE)
         {
             applyMaxUpwards = true;
         }
@@ -324,7 +392,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private void HandleJump()
     {
-        if (applyMaxUpwards && TouchingGround(Surface.ALL))
+        if (applyMaxUpwards && currentState.surfGround)
         {
             pBody.velocity = new Vector2(pBody.velocity.x, maxHeightVelocity);
             applyMaxUpwards = false;
@@ -338,7 +406,7 @@ public class Player : MonoBehaviour
             applyMinUpwards = false;
         }
 
-        if (!TouchingGround(Surface.ALL))
+        if (!currentState.surfGround)
         {
             if (pBody.velocity.y > 0)
             {
@@ -372,174 +440,82 @@ public class Player : MonoBehaviour
     //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
     private void IsStuck()
     {
-        if (Touching(Direction.RIGHT, Surface.ALL, 0) && Touching(Direction.LEFT, Surface.ALL, 0) && Mathf.Abs(pBody.velocity.y) <= .1f && !TouchingGround(Surface.ALL))
+        if ((currentState.surfFaceDir || currentState.objFaceDir) && (currentState.surfOppDir || currentState.objOppDir) && Mathf.Abs(pBody.velocity.y) <= .1f && !currentState.surfGround)
         {
             pBody.velocity =  -1 * Vector2.up * 8;
         }
     }
 
-    /// <summary>
-    /// Returns whether player is standing on the specified surface
-    /// </summary>
-    private bool TouchingGround(Surface surface)
+    private GameObject rayCheck(Direction direction, string layerMaskName, float leniency)
     {
-        BoxCollider2D collider = GetComponent<BoxCollider2D>();
+        float distance;
+        Vector2 origin;
+        Vector2 rayDirection;
+        RaycastHit2D raycast;
 
-        // Calculate bottom of player:
-        // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-        float playerHeight = collider.bounds.size.y;
-        float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
-
-        // Calculate left edge of player:
-        // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
-        float playerXMin = collider.bounds.center.x - (collider.bounds.size.x / 2) - (collider.edgeRadius / 2);
-
-        // Create vector positioned at bottom of player sprite
-        Vector2 origin = new Vector2(playerXMin, playerBottom);
-
-        float distance = collider.bounds.size.x + collider.edgeRadius;
-
-        return IsTouching(origin, Vector2.right, distance, surface);
-    }
-
-    /// <summary>
-    /// If player is touching an object, return it
-    /// </summary>
-    private bool Touching(Direction? direction, Surface surface, float leniency)
-    {
-        BoxCollider2D collider = GetComponent<BoxCollider2D>();
-
-        // Calculate bottom of player:
-        // Bottom of BoxCollider
-        float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
-
-        // Calculate distance to left edge of player:
-        // Half the collider + the radius + a little
-        // Left or Right determines the side of the player the ray is being shot from
-        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + leniency;
-
-        // If checking left, subtract the distance
-        if (direction == Direction.LEFT)
+        if (direction != Direction.DOWN) // Means that the direction is to the sides, so we do a raycast starting from the bottom of the desired side that shoots upwards
         {
-            playerXMin = collider.bounds.center.x - playerXMin;
-        }
-        else if (direction == Direction.RIGHT)
-        {
-            playerXMin = collider.bounds.center.x + playerXMin;
-        }
-        else return false;
+            BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
-        // Create vector positioned at bottom of player sprite
-        Vector2 origin = new Vector2(playerXMin, playerYMin);
+            // Calculate bottom of player:
+            // Bottom of BoxCollider
+            float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
 
-        float distance = collider.bounds.size.y + collider.edgeRadius;
+            // Calculate distance to left edge of player:
+            // Half the collider + the radius + a little
+            // Left or Right determines the side of the player the ray is being shot from
+            float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + leniency;
 
-        return IsTouching(origin, Vector2.up, distance, surface);
-    }
-
-    /// <summary>
-    /// Runs and returns whether the raycast hit the desired target
-    /// </summary>
-    private bool IsTouching(Vector2 origin, Vector2 direction, float distance, Surface surface)
-    {
-        if (surface == Surface.ALL)
-        {
-            if (ObjectCast(origin, direction, distance) != Surface.NONE)
+            // If checking left, subtract the distance
+            if (direction == Direction.LEFT)
             {
-                return true;
+                playerXMin = collider.bounds.center.x - playerXMin;
             }
-            else if (GroundCast(origin, direction, distance) != Surface.NONE)
+            else
             {
-                return true;
+                playerXMin = collider.bounds.center.x + playerXMin;
             }
-        }
-        else if (ObjectCast(origin, direction, distance) == surface)
-        {
-            return true;
-        }
-        else if (GroundCast(origin, direction, distance) == surface)
-        {
-            return true;
-        }
-        return false;
-    }
 
-    /// <summary>
-    /// Using raycast information, checks for objects and determines their current state
-    /// </summary>
-    private Surface ObjectCast(Vector2 origin, Vector2 direction, float distance)
-    {
-        RaycastHit2D raycast = Physics2D.Raycast(origin, direction, distance, LayerMask.GetMask("Object"));
-        if (raycast.collider != null)
-        {
-            if (raycast.collider.tag == "Object")
-            {
-                if ((raycast.collider.gameObject.GetComponent<SurfaceCheck>().touchingLeftWall &&  horizontalInput < 0) ||
-                    raycast.collider.gameObject.GetComponent<SurfaceCheck>().touchingRightWall && horizontalInput > 0)
-                {
-                    objectAgainstWall = true;
-                }
-                return Surface.OBJECT;
-            }
-        }
-        return Surface.NONE;
-    }
+            // Create vector positioned at bottom of player sprite
+            origin = new Vector2(playerXMin, playerYMin);
 
-    /// <summary>
-    /// Returns the object the player is grabbing
-    /// </summary>
-    private GameObject GrabbedObjectCast(Direction? direction)
-    {
-        BoxCollider2D collider = GetComponent<BoxCollider2D>();
+            rayDirection = Vector2.up;
 
-        // Calculate bottom of player:
-        // Bottom of BoxCollider
-        float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
-
-        // Calculate distance to left edge of player:
-        // Half the collider + the radius + a little
-        // Left or Right determines the side of the player the ray is being shot from
-        float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + grabLeniency;
-
-        // If checking left, subtract the distance
-        if (direction == Direction.LEFT)
-        {
-            playerXMin = collider.bounds.center.x - playerXMin;
+            distance = collider.bounds.size.y + collider.edgeRadius;
+            
+            raycast = Physics2D.Raycast(origin, rayDirection, distance, LayerMask.GetMask(layerMaskName));
         }
         else
         {
-            playerXMin = collider.bounds.center.x + playerXMin;
+            BoxCollider2D collider = GetComponent<BoxCollider2D>();
+
+            // Calculate bottom of player:
+            // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
+            float playerHeight = collider.bounds.size.y;
+            float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
+
+            // Calculate left edge of player:
+            // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
+            float playerXMin = collider.bounds.center.x - (collider.bounds.size.x / 2) - (collider.edgeRadius / 2);
+
+            // Create vector positioned at bottom of player sprite
+            origin = new Vector2(playerXMin, playerBottom);
+
+            rayDirection = Vector2.right;
+
+            distance = collider.bounds.size.x + collider.edgeRadius;
+
+            raycast = Physics2D.Raycast(origin, rayDirection, distance);
         }
-
-        // Create vector positioned at bottom of player sprite
-        Vector2 origin = new Vector2(playerXMin, playerYMin);
-
-        float distance = collider.bounds.size.y + collider.edgeRadius;
-
-        RaycastHit2D raycast = Physics2D.Raycast(origin, Vector2.up, distance, LayerMask.GetMask("Object"));
-        if (raycast.collider.gameObject != null)
+        Debug.DrawRay(origin, rayDirection * distance, Color.magenta);
+        if (raycast.collider != null)
         {
             return raycast.collider.gameObject;
         }
-        return null;
-    }
-
-    private Surface GroundCast(Vector2 origin, Vector2 direction, float distance)
-    {
-
-        RaycastHit2D raycast = Physics2D.Raycast(origin, direction, distance, LayerMask.GetMask("Ground"));
-        if (raycast.collider != null)
+        else
         {
-            if (raycast.collider.tag == "Slope")
-            {
-                return Surface.SLOPE;
-            }
-            else if (raycast.collider.tag == "Ground")
-            {
-                return Surface.GROUND;
-            }
+            return null;
         }
-        return Surface.NONE;
     }
 
     // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"

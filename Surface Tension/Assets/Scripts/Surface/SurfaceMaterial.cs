@@ -36,7 +36,6 @@ public class SurfaceMaterial : MonoBehaviour
     /// </summary>
     void SetTiling()
     {
-        Debug.Log("Surface " + name + ": tiling texture");
         GetComponent<Renderer>().material.mainTextureScale = transform.localScale;
     }
 
