@@ -4,46 +4,42 @@ using UnityEngine;
 
 public class SurfaceChange : MonoBehaviour {
 
-    //new color, will be changed to materials once the surfaces are implemented
-    [HideInInspector]
-    public Color newColor;
-    //original color, necessary for returning the surface to its original state with right click
-    [HideInInspector]
-    public Color originalColor;
     //instance of player object
     Player player;    
 
     void Start()
     {
-        player = GameObject.Find("Player").GetComponent<Player>();
-        newColor = GetComponent<Renderer>().material.color;
-        originalColor = GetComponent<Renderer>().material.color;
+        player = GameObject.FindWithTag("GameController").GetComponent<GameController>().player;
     }
 
     //For right clicking to remove surfaces
     void OnMouseOver()
     {
-        if (Input.GetMouseButton(1))
+        // Left click
+        if (Input.GetMouseButton(0))
         {
-            GetComponent<Renderer>().material.color = originalColor;
+            ChangeMaterial();
+        }
+        // Right click
+        else if (Input.GetMouseButton(1))
+        {
+            GetComponent<Renderer>().material.color = Color.white;
         }
     }
 
     //Only works for left clicking, for changing surfaces
-    void OnMouseDown()
+    void ChangeMaterial()
     {
-        if (player.equippedMaterial == GameController.material.BOUNCE)
-        {
-            newColor = Color.blue;
+        switch(player.equippedMaterial) {
+            case GameController.material.BOUNCE:
+                GetComponent<Renderer>().material.color = Color.blue;
+                break;
+            case GameController.material.SLIP:
+                GetComponent<Renderer>().material.color = Color.red;
+                break;
+            case GameController.material.STICK:
+                GetComponent<Renderer>().material.color = Color.yellow;
+                break;
         }
-        if (player.equippedMaterial == GameController.material.SLIP)
-        {
-            newColor = Color.red;
-        }
-        if (player.equippedMaterial == GameController.material.STICK)
-        {
-            newColor = Color.yellow;
-        }
-        GetComponent<Renderer>().material.color = newColor;
     }
 }

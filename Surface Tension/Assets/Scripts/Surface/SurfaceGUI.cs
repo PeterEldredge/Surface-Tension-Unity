@@ -5,7 +5,6 @@ using UnityEngine;
 public class SurfaceGUI : MonoBehaviour {
 
     Player player;
-    Color scol;
 
 	// Use this for initialization
 	void Start () {
@@ -14,19 +13,18 @@ public class SurfaceGUI : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        if (player.equippedMaterial == GameController.material.BOUNCE)
-        {
-            scol = Color.blue;
+	void Update () 
+    {
+        switch(player.equippedMaterial) {
+            case GameController.material.BOUNCE:
+                GetComponent<Renderer>().material.color = Color.blue;
+                break;
+            case GameController.material.SLIP:
+                GetComponent<Renderer>().material.color = Color.red;
+                break;
+            case GameController.material.STICK:
+                GetComponent<Renderer>().material.color = Color.yellow;
+                break;
         }
-        if (player.equippedMaterial == GameController.material.SLIP)
-        {
-            scol = Color.red;
-        }
-        if (player.equippedMaterial == GameController.material.STICK)
-        {
-            scol = Color.yellow;
-        }
-        GetComponent<Renderer>().material.color = scol;
     }
 }
