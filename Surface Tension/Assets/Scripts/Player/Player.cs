@@ -189,6 +189,9 @@ public class Player : MonoBehaviour
         // Move the character
         HandleMovement(horizontalInput);
 
+        // Animate the character
+        HandleAnimation();
+
         HandleRespawn();
 
         HandleSurface();
@@ -196,17 +199,12 @@ public class Player : MonoBehaviour
 
     // Update called at a fixed delta time
     void FixedUpdate () 
-	{
-        SetTopSpeed();
-        
+	{   
         // Handles changing y velocity
         HandleJump();
 
         // Check if stuck 
         IsStuck();
-
-        // Animate the character
-        HandleAnimation();
 
         previousState = currentState;
     }
@@ -276,12 +274,12 @@ public class Player : MonoBehaviour
     // Collects/sets action for the frame
     private void SetCurrentAction()
     {
-        if (currentState.objFaceDir && (GetTag(currentState.surfGround) == "Slope" || GetTag(currentState.surfGround) == "Ground") && grabbing)
+        if (currentState.objFaceDir && (GetTag(currentState.surfGround) == "Slope" || GetTag(currentState.surfGround) == "Ground") && grabbing && horizontalInput != 0)
         {
             currentState.action = Action.PUSHING; // The player is pushing an object
             currentState.grabbedObject = currentState.objFaceDir; // Finds the object the player is currently grabbing
         }
-        else if (currentState.objOppDir && (GetTag(currentState.surfGround) == "Ground") && grabbing)
+        else if (currentState.objOppDir && (GetTag(currentState.surfGround) == "Ground") && grabbing && horizontalInput != 0)
         {
             currentState.action = Action.PULLING; // The player is pulling an object
             currentState.grabbedObject = currentState.objOppDir;
