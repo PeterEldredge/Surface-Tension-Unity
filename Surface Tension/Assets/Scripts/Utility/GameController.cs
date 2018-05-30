@@ -22,7 +22,7 @@ public class GameController : MonoBehaviour {
     /// Mapping of materials to movement speeds
     /// </summary>
     /// <returns></returns>
-    public Dictionary<GameController.material, SurfaceSpeeds> topSpeedMapping = new Dictionary<material, SurfaceSpeeds> {
+    public Dictionary<GameController.material, SurfaceSpeeds> speedMapping = new Dictionary<material, SurfaceSpeeds> {
         { material.NONE, new SurfaceSpeeds {
             defaultSpeed = 4F,
             upSlopeSpeed = 2.5F,

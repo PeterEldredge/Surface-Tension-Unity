@@ -10,7 +10,8 @@ public class SlickSurface : SurfaceMaterial {
 	/// </summary>
 	void OnAwake()
 	{
-		// Set top speed
-		topSpeed = GameObject.FindWithTag("GameController").GetComponent<GameController>().topSpeedMapping[GameController.material.SLIP];
+		// Declare type and initialize with movement speeds
+		type = GameController.material.SLIP;
+		InitializeSurfaceSpeeds(type);
 	}
 }

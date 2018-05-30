@@ -7,7 +7,7 @@ public class SurfaceMaterial : MonoBehaviour
     /// <summary>
     /// Top speed the player can move on this surface
     /// </summary>
-    public float topSpeed;
+    public GameController.SurfaceSpeeds surfaceSpeeds;
 
     /// <summary>
     /// Whether or not the player can change the material of this surface
@@ -37,6 +37,15 @@ public class SurfaceMaterial : MonoBehaviour
     void SetTiling()
     {
         GetComponent<Renderer>().material.mainTextureScale = transform.localScale;
+    }
+
+    /// <summary>
+    /// Initializes surface with associated move speeds from surfaceSpeeds (called from derived class)
+    /// </summary>
+    protected void InitializeSurfaceSpeeds(GameController.material materialType)
+    {
+        // Initialize surface speeds
+		surfaceSpeeds = GameObject.FindWithTag("GameController").GetComponent<GameController>().speedMapping[materialType];
     }
 
     /// <summary>
