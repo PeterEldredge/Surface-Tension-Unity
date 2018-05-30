@@ -17,7 +17,7 @@ public class SurfaceMaterial : MonoBehaviour
     /// <summary>
     /// Type of material on this surface
     /// </summary>
-    public GameController.material type { get; protected set; }
+    public GameController.material type;
 
     /// <summary>
     /// Reference to player
@@ -28,6 +28,7 @@ public class SurfaceMaterial : MonoBehaviour
     void Start()
     {
         SetTiling();
+        InitializeSurfaceSpeeds(type);
         player = GameObject.FindWithTag("GameController").GetComponent<GameController>().player;
     }
 
@@ -83,6 +84,9 @@ public class SurfaceMaterial : MonoBehaviour
                 GetComponent<Renderer>().material.color = Color.yellow;
                 break;
         }
+        type = player.equippedMaterial;
+
+        InitializeSurfaceSpeeds(player.equippedMaterial);
     }
 
 }

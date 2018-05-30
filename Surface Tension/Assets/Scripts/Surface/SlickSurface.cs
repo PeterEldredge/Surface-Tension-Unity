@@ -12,6 +12,6 @@ public class SlickSurface : SurfaceMaterial {
 	{
 		// Declare type and initialize with movement speeds
 		type = GameController.material.SLIP;
-		InitializeSurfaceSpeeds(type);
+		// InitializeSurfaceSpeeds(type);
 	}
 }

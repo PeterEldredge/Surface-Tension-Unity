@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour 
 {
+    public GameController.SurfaceSpeeds surfaceSpeeds;
+
     /// <summary>
     /// Maximum speed player can move (modified by ground contact with surface)
     /// </summary>
@@ -132,6 +134,8 @@ public class Player : MonoBehaviour
         public GameObject objOppDir; // The object opposite the side the player is facing
         public GameObject surfOppDir; // The surface opposite the side the player is facing   
         public GameObject surfGround; // The game object on the ground
+
+        public SurfaceMaterial surfaceMaterial; // Material of ground surface
     };
 
     /// <summary>
@@ -315,12 +319,28 @@ public class Player : MonoBehaviour
 
     }
 
+    private void InitializeSurfaceSpeeds()
+    {
+        if(currentState.surfGround != null) {
+            surfaceSpeeds = currentState.surfGround.GetComponent<SurfaceMaterial>().surfaceSpeeds;
+
+            defaultSpeed = surfaceSpeeds.defaultSpeed;
+            pushSpeed = surfaceSpeeds.pushSpeed;
+            pullSpeed = surfaceSpeeds.pullSpeed;
+            slopeSpeed = surfaceSpeeds.upSlopeSpeed;
+            Debug.Log("ground surface material: " + currentState.surfGround.GetComponent<SurfaceMaterial>().type);
+            Debug.Log(surfaceSpeeds.defaultSpeed);
+        }
+    }
+
     /// <summary>
     /// Move player based on horizontal input
     /// </summary>
     /// <param name="horizontalInput">Horizontal input</param>
     private void HandleMovement(float horizontalInput)
     {
+        InitializeSurfaceSpeeds();
+
         float distAway;
         float moveSpeed = defaultSpeed;
         switch (currentState.action)
