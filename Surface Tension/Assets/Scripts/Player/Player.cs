@@ -318,10 +318,13 @@ public class Player : MonoBehaviour
         }
 
     }
-
+    
+    /// <summary>
+    /// If grounded on a surface, assign its surfaceSpeeds to the player movement speeds
+    /// </summary>
     private void InitializeSurfaceSpeeds()
     {
-        if(currentState.surfGround != null) {
+        if(currentState.surfGround != null && LayerMask.LayerToName(currentState.surfGround.layer) == "Ground") {
             surfaceSpeeds = currentState.surfGround.GetComponent<SurfaceMaterial>().surfaceSpeeds;
 
             defaultSpeed = surfaceSpeeds.defaultSpeed;
