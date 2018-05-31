@@ -263,7 +263,7 @@ Prefab:
     - target: {fileID: 114459897493181762, guid: 0ad5ddb4bde54624398ac8b70214751b,
         type: 2}
       propertyPath: ChosenSurface.Array.size
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4695790191059944, guid: 0ad5ddb4bde54624398ac8b70214751b, type: 2}
       propertyPath: m_LocalPosition.x
@@ -315,6 +315,16 @@ Prefab:
       propertyPath: m_LocalScale.x
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 114459897493181762, guid: 0ad5ddb4bde54624398ac8b70214751b,
+        type: 2}
+      propertyPath: ChosenSurface.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1b0a6b295d7df6643aa44b8f5f0bb720, type: 2}
+    - target: {fileID: 114459897493181762, guid: 0ad5ddb4bde54624398ac8b70214751b,
+        type: 2}
+      propertyPath: ChosenSurface.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: a7c1e56e0ea5fe94797ef82265462e0b, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0ad5ddb4bde54624398ac8b70214751b, type: 2}
   m_IsPrefabParent: 0
