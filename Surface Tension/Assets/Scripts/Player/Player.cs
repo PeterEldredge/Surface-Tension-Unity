@@ -235,7 +235,7 @@ public class Player : MonoBehaviour
     {
         if (gameObject)
         {
-            if (gameObject.layer != LayerMask.NameToLayer("Object"))
+            if (gameObject.layer == LayerMask.NameToLayer("Ground"))
             {
                 return gameObject.GetComponent<SurfaceMaterial>().type;
             }
