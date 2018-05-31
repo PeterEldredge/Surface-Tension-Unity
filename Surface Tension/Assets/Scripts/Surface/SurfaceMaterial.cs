@@ -64,6 +64,8 @@ public class SurfaceMaterial : MonoBehaviour
             else if (Input.GetMouseButton(1))
             {
                 GetComponent<Renderer>().material.color = Color.white;
+                type = GameController.material.NONE;
+                InitializeSurfaceSpeeds(GameController.material.NONE);
             }
         }
     }
