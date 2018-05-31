@@ -29,13 +29,13 @@ public class SurfaceMaterial : MonoBehaviour
 
     void Start()
     {
-        SetTiling();
         InitializeSurfaceSpeeds(type);
         player = GameObject.FindWithTag("GameController").GetComponent<GameController>().player;
     }
 
     /// <summary>
-    /// Configures material to tile according to quad scale
+    /// Configures material to tile according to quad scale, must be called 
+    /// at the beginning of the scene, but also when a surface material is changed.
     /// </summary>
     void SetTiling()
     {
@@ -61,6 +61,7 @@ public class SurfaceMaterial : MonoBehaviour
             if (Input.GetMouseButton(0))
             {
                 ChangeMaterial();
+                SetTiling();
             }
             // Right click
             else if (Input.GetMouseButton(1))
@@ -68,6 +69,7 @@ public class SurfaceMaterial : MonoBehaviour
                 GetComponent<Renderer>().material = ChosenSurface[3];
                 type = GameController.material.NONE;
                 InitializeSurfaceSpeeds(GameController.material.NONE);
+                SetTiling();
             }
         }
     }

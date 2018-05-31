@@ -13,6 +13,7 @@ public class Respawn : MonoBehaviour {
         }
     }
 
+    //When the player attached with this script is met with a killbox, the scene resets
     public void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Kill Box")
