@@ -43,6 +43,11 @@ public class SurfaceMaterial : MonoBehaviour
         GetComponent<Renderer>().material.mainTextureScale = transform.localScale;
     }
 
+    void SetSurfaceTiling()
+    {
+        GetComponent<Renderer>().material.mainTextureScale = transform.localScale / 3;
+    }
+
     /// <summary>
     /// Initializes surface with associated move speeds from surfaceSpeeds (called from derived class)
     /// </summary>
@@ -62,7 +67,7 @@ public class SurfaceMaterial : MonoBehaviour
             if (Input.GetMouseButton(0))
             {
                 ChangeMaterial();
-                SetTiling();
+                SetSurfaceTiling();
             }
             // Right click
             else if (Input.GetMouseButton(1))
@@ -70,7 +75,7 @@ public class SurfaceMaterial : MonoBehaviour
                 GetComponent<Renderer>().material = ChosenSurface[3];
                 type = GameController.material.NONE;
                 InitializeSurfaceSpeeds(GameController.material.NONE);
-                SetTiling();
+                SetSurfaceTiling();
             }
         }
     }
