@@ -29,6 +29,7 @@ public class SurfaceMaterial : MonoBehaviour
 
     void Start()
     {
+        SetTiling();
         InitializeSurfaceSpeeds(type);
         player = GameObject.FindWithTag("GameController").GetComponent<GameController>().player;
     }
