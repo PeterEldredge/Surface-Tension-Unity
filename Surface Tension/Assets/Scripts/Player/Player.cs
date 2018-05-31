@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
     private State previousState;
 
     /// <summary>
-    /// The player's currently equiped material
+    /// The player's currently equipped material
     /// </summary>
     public GameController.material equippedMaterial;
 

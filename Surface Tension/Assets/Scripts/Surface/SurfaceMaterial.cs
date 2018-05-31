@@ -24,7 +24,9 @@ public class SurfaceMaterial : MonoBehaviour
     /// </summary>
     protected Player player;
 
-    
+    //Creates an array to hold the materials that represent the surfaces
+    public Material[] ChosenSurface;
+
     void Start()
     {
         SetTiling();
@@ -63,7 +65,7 @@ public class SurfaceMaterial : MonoBehaviour
             // Right click
             else if (Input.GetMouseButton(1))
             {
-                GetComponent<Renderer>().material.color = Color.white;
+                GetComponent<Renderer>().material = ChosenSurface[3];
                 type = GameController.material.NONE;
                 InitializeSurfaceSpeeds(GameController.material.NONE);
             }
@@ -75,15 +77,16 @@ public class SurfaceMaterial : MonoBehaviour
     /// </summary>
     void ChangeMaterial()
     {
-        switch(player.equippedMaterial) {
+        switch(player.equippedMaterial)
+        {
             case GameController.material.BOUNCE:
-                GetComponent<Renderer>().material.color = Color.blue;
+                GetComponent<Renderer>().material = ChosenSurface[0];
                 break;
             case GameController.material.SLIP:
-                GetComponent<Renderer>().material.color = Color.red;
+                GetComponent<Renderer>().material = ChosenSurface[1];
                 break;
             case GameController.material.STICK:
-                GetComponent<Renderer>().material.color = Color.yellow;
+                GetComponent<Renderer>().material = ChosenSurface[2];
                 break;
         }
         type = player.equippedMaterial;

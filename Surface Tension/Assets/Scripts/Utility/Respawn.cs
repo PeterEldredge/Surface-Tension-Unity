@@ -5,17 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class Respawn : MonoBehaviour {
 
-    public GameObject spawnPoint;
-
-	// Use this for initialization
-	public void manualRespawn() {
-        
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            transform.position = spawnPoint.transform.position;
-        }
-    }
-
     public void manualReset()
     {
         if (Input.GetButtonDown("Restart"))
@@ -23,5 +12,12 @@ public class Respawn : MonoBehaviour {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
-	
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Kill Box")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
 }

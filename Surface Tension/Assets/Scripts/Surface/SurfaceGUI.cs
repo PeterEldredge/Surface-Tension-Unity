@@ -6,10 +6,12 @@ public class SurfaceGUI : MonoBehaviour {
 
     Player player;
 
+    //Creates an array to hold the materials that represent the surfaces
+    public Material[] ChosenSurface;
+
 	// Use this for initialization
 	void Start () {
         player = GameObject.Find("Player").GetComponent<Player>();
-        GetComponent<Renderer>().material.color = Color.grey;
 	}
 	
 	// Update is called once per frame
@@ -17,13 +19,13 @@ public class SurfaceGUI : MonoBehaviour {
     {
         switch(player.equippedMaterial) {
             case GameController.material.BOUNCE:
-                GetComponent<Renderer>().material.color = Color.blue;
+                GetComponent<Renderer>().material = ChosenSurface[0];
                 break;
             case GameController.material.SLIP:
-                GetComponent<Renderer>().material.color = Color.red;
+                GetComponent<Renderer>().material = ChosenSurface[1];
                 break;
             case GameController.material.STICK:
-                GetComponent<Renderer>().material.color = Color.yellow;
+                GetComponent<Renderer>().material = ChosenSurface[2];
                 break;
         }
     }
