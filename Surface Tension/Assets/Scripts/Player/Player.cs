@@ -9,26 +9,6 @@ public class Player : MonoBehaviour
     public GameController.SurfaceSpeeds surfaceSpeeds;
 
     /// <summary>
-    /// Maximum speed player can move (modified by ground contact with surface)
-    /// </summary>
-    public float defaultSpeed;
-
-    /// <summary>
-    /// Speed at which player pushes a block
-    /// </summary>
-    public float pushSpeed;
-
-    /// <summary>
-    /// Speed at which player pulls a block
-    /// </summary>
-    public float pullSpeed;
-
-    /// <summary>
-    /// Speed at which player navigates a slope
-    /// </summary>
-    public float slopeSpeed;
-
-    /// <summary>
     /// The horizontal input from the player every frame
     /// </summary>
     float horizontalInput;
@@ -108,25 +88,15 @@ public class Player : MonoBehaviour
     };
 
     /// <summary>
-    /// Definition for surfaces the player is touching
-    /// </summary>
-    public enum Surface
-    {
-        OBJECT,
-        GROUND,
-        SLOPE,
-        ALL,
-        NONE
-    };
-
-    /// <summary>
     /// Holds information about the current frame to drive movement and animations
     /// </summary>
     public struct State
     {
         public Action action;
+
         public Direction direction;
         public Direction oppDirection;
+
         public GameObject grabbedObject;
         
         public GameObject objFaceDir; // The object the player is facing
@@ -135,7 +105,12 @@ public class Player : MonoBehaviour
         public GameObject surfOppDir; // The surface opposite the side the player is facing   
         public GameObject surfGround; // The game object on the ground
 
-        public SurfaceMaterial surfaceMaterial; // Material of ground surface
+        public float defaultSpeed; // The speed the player walks on a normal surface
+        public float pushSpeed; // The speed the player pushes
+        public float pullSpeed; // The speed the player pulls
+        public float slopeSpeed; // The speed the player walks up slopes
+
+        public Vector2 velocity; // Stores the player's velocity at the end of the frame
     };
 
     /// <summary>
@@ -199,6 +174,11 @@ public class Player : MonoBehaviour
         HandleRespawn();
 
         HandleSurface();
+
+        BounceCheck();
+
+        currentState.velocity = pBody.velocity;
+        previousState = currentState;
     }
 
     // Update called at a fixed delta time
@@ -209,8 +189,6 @@ public class Player : MonoBehaviour
 
         // Check if stuck 
         IsStuck();
-
-        previousState = currentState;
     }
 
     /// <summary>
@@ -243,6 +221,21 @@ public class Player : MonoBehaviour
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// Gets the tag of a Game Object
+    /// </summary>
+    private GameController.material? GetMaterial(GameObject gameObject)
+    {
+        if (gameObject)
+        {
+            if (gameObject.layer != LayerMask.NameToLayer("Object"))
+            {
+                return gameObject.GetComponent<SurfaceMaterial>().type;
+            }
+        }
+        return null;
     }
 
     private void GetInput()
@@ -327,14 +320,24 @@ public class Player : MonoBehaviour
         if(currentState.surfGround != null && LayerMask.LayerToName(currentState.surfGround.layer) == "Ground") {
             surfaceSpeeds = currentState.surfGround.GetComponent<SurfaceMaterial>().surfaceSpeeds;
 
-            defaultSpeed = surfaceSpeeds.defaultSpeed;
-            pushSpeed = surfaceSpeeds.pushSpeed;
-            pullSpeed = surfaceSpeeds.pullSpeed;
-            slopeSpeed = surfaceSpeeds.upSlopeSpeed;
-            Debug.Log("ground surface material: " + currentState.surfGround.GetComponent<SurfaceMaterial>().type);
-            Debug.Log(surfaceSpeeds.defaultSpeed);
+            currentState.defaultSpeed = surfaceSpeeds.defaultSpeed;
+            currentState.pushSpeed = surfaceSpeeds.pushSpeed;
+            currentState.pullSpeed = surfaceSpeeds.pullSpeed;
+            currentState.slopeSpeed = surfaceSpeeds.upSlopeSpeed;
         }
     }
+
+    private void BounceCheck()
+    {
+        if (GetMaterial(currentState.surfGround) == GameController.material.BOUNCE &&
+            !previousState.surfGround && 
+            Mathf.Abs(previousState.velocity.y) > 4f)
+        {
+            pBody.velocity = new Vector2(pBody.velocity.x, Mathf.Sqrt((upGravity * previousState.velocity.y * previousState.velocity.y) / (downGravity)) + 1f);
+        }
+    }
+
+
 
     /// <summary>
     /// Move player based on horizontal input
@@ -345,27 +348,27 @@ public class Player : MonoBehaviour
         InitializeSurfaceSpeeds();
 
         float distAway;
-        float moveSpeed = defaultSpeed;
+        float moveSpeed = currentState.defaultSpeed;
         switch (currentState.action)
         {
             case Action.PUSHING:
-                distAway = horizontalInput * pushSpeed * Time.deltaTime;
-                moveSpeed = pushSpeed;
+                distAway = horizontalInput * currentState.pushSpeed * Time.deltaTime;
+                moveSpeed = currentState.pushSpeed;
                 if (!objectAgainstWall)
                 {
                     currentState.grabbedObject.transform.Translate(distAway, 0, 0);
                 }
                 break;
             case Action.PULLING:
-                distAway = horizontalInput * pullSpeed * Time.deltaTime;
-                moveSpeed = pullSpeed;
+                distAway = horizontalInput * currentState.pullSpeed * Time.deltaTime;
+                moveSpeed = currentState.pullSpeed;
                 if(!currentState.surfFaceDir && !currentState.objFaceDir)
                 {
                     currentState.grabbedObject.transform.Translate(distAway, 0, 0);
                 }
                 break;
             case Action.UPSLOPE:
-                moveSpeed = slopeSpeed;
+                moveSpeed = currentState.slopeSpeed;
                 break;
             case Action.AGAINSTWALL:
                 moveSpeed = 0;
@@ -415,7 +418,15 @@ public class Player : MonoBehaviour
     {
         if (applyMaxUpwards && currentState.surfGround)
         {
-            pBody.velocity = new Vector2(pBody.velocity.x, maxHeightVelocity);
+            if (GetMaterial(currentState.surfGround) == GameController.material.BOUNCE)
+            {
+                // If jumping on a bouncy surface, double maxHeightVelocity
+                pBody.velocity = new Vector2(pBody.velocity.x, 1.4f * maxHeightVelocity);
+            }
+            else
+            {
+                pBody.velocity = new Vector2(pBody.velocity.x, maxHeightVelocity);
+            }
             applyMaxUpwards = false;
         }
         else if (applyMinUpwards)

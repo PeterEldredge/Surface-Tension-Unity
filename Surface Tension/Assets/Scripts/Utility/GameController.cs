@@ -24,26 +24,26 @@ public class GameController : MonoBehaviour {
     /// <returns></returns>
     public Dictionary<GameController.material, SurfaceSpeeds> speedMapping = new Dictionary<material, SurfaceSpeeds> {
         { material.NONE, new SurfaceSpeeds {
-            defaultSpeed = 4F,
-            upSlopeSpeed = 2.5F,
-            pushSpeed = 1.5F,
-            pullSpeed = 1.5F
+            defaultSpeed = 4f,
+            upSlopeSpeed = 2.5f,
+            pushSpeed = 1.5f,
+            pullSpeed = 1.5f
         }},
         { material.SLIP, new SurfaceSpeeds {
-            defaultSpeed = 8F,
-            upSlopeSpeed = 6.5F,
-            pushSpeed = 5.5F,
-            pullSpeed = 5.5F
+            defaultSpeed = 8f,
+            upSlopeSpeed = 6.5f,
+            pushSpeed = 5.5f,
+            pullSpeed = 5.5f
         }},
         { material.BOUNCE, new SurfaceSpeeds {
-            defaultSpeed = 4F,
-            upSlopeSpeed = 2.5F,
-            pushSpeed = 1.5F,
-            pullSpeed = 1.5F
+            defaultSpeed = 4f,
+            upSlopeSpeed = 2.5f,
+            pushSpeed = 1.5f,
+            pullSpeed = 1.5f
         }},
         { material.STICK, new SurfaceSpeeds {
-            defaultSpeed = 2F,
-            upSlopeSpeed = .5F,
+            defaultSpeed = 2f,
+            upSlopeSpeed = .5f,
             pushSpeed = 0,
             pullSpeed = 0
         }}
