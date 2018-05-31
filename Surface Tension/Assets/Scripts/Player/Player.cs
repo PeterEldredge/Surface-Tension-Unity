@@ -56,6 +56,11 @@ public class Player : MonoBehaviour
     private bool objectAgainstWall = false;
 
     /// <summary>
+    /// The material of the last ground surface interacted with
+    /// </summary>
+    private GameController.material lastGroundMat = GameController.material.NONE;
+
+    /// <summary>
     /// If true, the object the player is currently holding the grab button
     /// </summary>
     private bool grabbing = false;
@@ -226,7 +231,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// Gets the tag of a Game Object
     /// </summary>
-    private GameController.material? GetMaterial(GameObject gameObject)
+    private GameController.material GetMaterial(GameObject gameObject)
     {
         if (gameObject)
         {
@@ -235,7 +240,7 @@ public class Player : MonoBehaviour
                 return gameObject.GetComponent<SurfaceMaterial>().type;
             }
         }
-        return null;
+        return GameController.material.NONE;
     }
 
     private void GetInput()
@@ -333,11 +338,10 @@ public class Player : MonoBehaviour
             !previousState.surfGround && 
             Mathf.Abs(previousState.velocity.y) > 4f)
         {
+            lastGroundMat = GameController.material.BOUNCE;
             pBody.velocity = new Vector2(pBody.velocity.x, Mathf.Sqrt((upGravity * previousState.velocity.y * previousState.velocity.y) / (downGravity)) + 1f);
         }
     }
-
-
 
     /// <summary>
     /// Move player based on horizontal input
@@ -401,11 +405,11 @@ public class Player : MonoBehaviour
     /// </summary>
     private void JumpDown()
     {
-        if (Input.GetButtonDown("Jump") && currentState.surfGround)// && currentState.action != Action.UPSLOPE)
+        if (Input.GetButtonDown("Jump") && currentState.surfGround)
         {
             applyMaxUpwards = true;
         }
-        if (Input.GetButtonUp("Jump"))
+        if (Input.GetButtonUp("Jump") && lastGroundMat != GameController.material.BOUNCE)
         {
             applyMinUpwards = true;
         }
@@ -542,6 +546,10 @@ public class Player : MonoBehaviour
         Debug.DrawRay(origin, rayDirection * distance, Color.magenta);
         if (raycast.collider != null)
         {
+            if (direction == Direction.DOWN && layerMaskName != "Object")
+            {
+                lastGroundMat = GetMaterial(raycast.collider.gameObject);
+            }
             return raycast.collider.gameObject;
         }
         else
