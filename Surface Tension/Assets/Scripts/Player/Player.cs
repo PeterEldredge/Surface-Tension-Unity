@@ -155,16 +155,13 @@ public class Player : MonoBehaviour
 
         // Script Initializations
         respawn = GetComponent<Respawn>();
-
-        // Initializes equipped material to "bounce"
-        equippedMaterial = GameController.material.BOUNCE;
     }
 
     // Update is called once per frame
     void Update()
     {
         objectAgainstWall = false;
-        grabbing = false;
+        // grabbing = false;
 
         HandleInput();
 
@@ -223,7 +220,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets the tag of a Game Object
+    /// Gets the material of a Game Object
     /// </summary>
     private GameController.material GetMaterial(GameObject gameObject)
     {
@@ -289,6 +286,7 @@ public class Player : MonoBehaviour
     /// </summary>
     private void SetCurrentAction()
     {
+        // Pushing
         if (currentState.objFaceDir && (GetTag(currentState.surfGround) == "Slope" || GetTag(currentState.surfGround) == "Ground") && grabbing && horizontalInput != 0)
         {
             currentState.action = Action.PUSHING;
@@ -296,6 +294,7 @@ public class Player : MonoBehaviour
             // Get pushed object
             currentState.grabbedObject = currentState.objFaceDir; 
         }
+        // Pulling
         else if (currentState.objOppDir && (GetTag(currentState.surfGround) == "Ground") && grabbing && horizontalInput != 0)
         {
             currentState.action = Action.PULLING;
@@ -303,16 +302,19 @@ public class Player : MonoBehaviour
             // Get pulled object
             currentState.grabbedObject = currentState.objOppDir;
         }
+        // Going up slope
         else if (GetTag(currentState.surfFaceDir) == "Slope" && currentState.surfGround)
         {
             currentState.action = Action.UPSLOPE;
             currentState.grabbedObject = null;
         }
+        // Against wall
         else if ((currentState.objFaceDir || currentState.surfFaceDir) || objectAgainstWall)
         {
             currentState.action = Action.AGAINSTWALL;
             currentState.grabbedObject = null;
         }
+        // Normal
         else
         {
             currentState.action = Action.NORMAL;
