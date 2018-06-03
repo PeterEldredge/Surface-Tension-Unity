@@ -525,10 +525,9 @@ public class Player : MonoBehaviour
             // Bottom of BoxCollider + edgeRadius around collider + leniency (subtraction because in downward direction)
             float playerBottom = collider.bounds.min.y - collider.edgeRadius - leniency;
 
-            // Calculate left edge of player:
+            // Calculate left edge of player (don't need leniency here):
             // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
             float playerXMin = collider.bounds.min.x - (collider.edgeRadius / 2);
-            
 
             // Create vector positioned at bottom of player sprite
             origin = new Vector2(playerXMin, playerBottom);
@@ -536,17 +535,14 @@ public class Player : MonoBehaviour
             rayDirection = Vector2.right;
 
             distance = collider.bounds.size.x + collider.edgeRadius;
-
-            // Ignore layermask in case player standing on box
-            raycast = Physics2D.Raycast(origin, rayDirection, distance);
         }
         else {
-            // Calculate bottom of player:
+            // Calculate bottom of player (don't need leniency here):
             // Bottom of BoxCollider
             float playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2f);
 
             // Calculate distance to left edge of player:
-            // Half the collider + the radius + a little
+            // Half the collider + the radius + leniency
             // Left or Right determines the side of the player the ray is being shot from
             float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + leniency;
 
@@ -566,9 +562,16 @@ public class Player : MonoBehaviour
             rayDirection = Vector2.up;
 
             distance = collider.bounds.size.y + collider.edgeRadius;
-            
+        }
+
+        // Perform raycast (leave out layermask if null)
+        if(layerMaskName != null) {
             raycast = Physics2D.Raycast(origin, rayDirection, distance, LayerMask.GetMask(layerMaskName));
         }
+        else {
+            raycast = Physics2D.Raycast(origin, rayDirection, distance);
+        }
+
         Debug.DrawRay(origin, rayDirection * distance, Color.magenta);
         if (raycast.collider != null)
         {
