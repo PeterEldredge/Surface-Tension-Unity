@@ -514,75 +514,78 @@ public class Player : MonoBehaviour
     /// <returns>Returns: Any GameObject it collides with</returns>
     private GameObject RayCheck(Direction direction, string layerMaskName, float leniency)
     {
-        float distance;
-        Vector2 origin;
+        // Raycast parameters
+        float rayDistance;
+        Vector2 rayOrigin;
         Vector2 rayDirection;
         RaycastHit2D raycast;
+
+        // X,Y points used to calculate raycast origin
+        float playerBottom;
+        float originXPos;
+
         BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
         if (direction == Direction.DOWN) {
             // Calculate bottom of player:
             // Bottom of BoxCollider + edgeRadius around collider + leniency (subtraction because in downward direction)
-            float playerBottom = collider.bounds.min.y - collider.edgeRadius - leniency;
+            playerBottom = collider.bounds.min.y - collider.edgeRadius - leniency;
 
             // Calculate left edge of player (don't need leniency here):
             // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
-            float playerXMin = collider.bounds.min.x - (collider.edgeRadius / 2);
+            originXPos = collider.bounds.min.x - (collider.edgeRadius / 2);
 
             // Create vector positioned at bottom of player sprite
-            origin = new Vector2(playerXMin, playerBottom);
-
             rayDirection = Vector2.right;
 
-            distance = collider.bounds.size.x + collider.edgeRadius;
+            // Distance = width + edge radius
+            rayDistance = collider.bounds.size.x + collider.edgeRadius;
         }
         else {
             // Calculate bottom of player (don't need leniency here):
             // Bottom of BoxCollider
-            float playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2f);
+            playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2f);
 
             // Calculate distance to left edge of player:
             // Half the collider + the radius + leniency
+            originXPos = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + leniency;
+
             // Left or Right determines the side of the player the ray is being shot from
-            float playerXMin = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + leniency;
-
-            // If checking left, subtract the distance
-            if (direction == Direction.LEFT)
-            {
-                playerXMin = collider.bounds.center.x - playerXMin;
+            if (direction == Direction.LEFT) {
+                originXPos = collider.bounds.center.x - originXPos;
             }
-            else
-            {
-                playerXMin = collider.bounds.center.x + playerXMin;
+            else {
+                originXPos = collider.bounds.center.x + originXPos;
             }
-
-            // Create vector positioned at bottom of player sprite
-            origin = new Vector2(playerXMin, playerBottom);
-
+            
             rayDirection = Vector2.up;
 
-            distance = collider.bounds.size.y + collider.edgeRadius;
+            // Distance = height + edge radius
+            rayDistance = collider.bounds.size.y + collider.edgeRadius;
         }
+
+        // Calculate raycast origin
+        rayOrigin = new Vector2(originXPos, playerBottom);
 
         // Perform raycast (leave out layermask if null)
         if(layerMaskName != null) {
-            raycast = Physics2D.Raycast(origin, rayDirection, distance, LayerMask.GetMask(layerMaskName));
+            raycast = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance, LayerMask.GetMask(layerMaskName));
         }
         else {
-            raycast = Physics2D.Raycast(origin, rayDirection, distance);
+            raycast = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance);
         }
-
-        Debug.DrawRay(origin, rayDirection * distance, Color.magenta);
-        if (raycast.collider != null)
-        {
-            if (direction == Direction.DOWN && layerMaskName != "Object")
-            {
+        Debug.DrawRay(rayOrigin, rayDirection * rayDistance, Color.magenta);
+        
+        
+        // Check for collision
+        if (raycast.collider != null) {
+            if (direction == Direction.DOWN && layerMaskName != "Object") {
                 lastGroundMat = GetMaterial(raycast.collider.gameObject);
             }
+
             return raycast.collider.gameObject;
         }
-        else
-        {
+        else {
             return null;
         }
     }
