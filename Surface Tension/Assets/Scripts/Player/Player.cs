@@ -163,25 +163,16 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Cleans up all variables
-        CleanUp();
+        objectAgainstWall = false;
+        grabbing = false;
 
-        //Gets all player inputs
         HandleInput();
 
-        // Set the player's current surrondings
-        SetCurrentSurroundings();
+        // Update data in currentState
+        UpdateState();
 
-        // Set the player's current action
-        SetCurrentAction();
-
-        // Set player move speeds depending on ground surface
-        InitializeSurfaceSpeeds();
-
-        // Move the character
         HandleMovement(horizontalInput);
 
-        // Animate the character
         HandleAnimation();
 
         // Bounce if landed on bouncy surface
@@ -202,12 +193,18 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Cleans up changed variables from the previous frame
+    /// Updates data stored in currentState
     /// </summary>
-    private void CleanUp()
+    private void UpdateState()
     {
-        objectAgainstWall = false;
-        grabbing = false;
+        // Set the player's current surrondings
+        SetCurrentSurroundings();
+
+        // Set the player's current action
+        SetCurrentAction();
+
+        // Set player move speeds depending on ground surface
+        InitializeSurfaceSpeeds();
     }
 
     /// <summary>
