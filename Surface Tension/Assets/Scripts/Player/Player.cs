@@ -61,7 +61,7 @@ public class Player : MonoBehaviour
     private GameController.material lastGroundMat = GameController.material.NONE;
 
     /// <summary>
-    /// If true, the object the player is currently holding the grab button
+    /// If true, the player is currently holding the grab button
     /// </summary>
     private bool grabbing = false;
 
@@ -170,15 +170,14 @@ public class Player : MonoBehaviour
         // Set the player's current action
         SetCurrentAction();
 
+        // Set player move speeds depending on ground surface
+        InitializeSurfaceSpeeds();
+
         // Move the character
         HandleMovement(horizontalInput);
 
         // Animate the character
         HandleAnimation();
-
-        HandleRespawn();
-
-        HandleSurface();
 
         BounceCheck();
 
@@ -194,14 +193,6 @@ public class Player : MonoBehaviour
 
         // Check if stuck 
         IsStuck();
-    }
-
-    /// <summary>
-    /// Sets defaultSpeed to 
-    /// </summary>
-    private void SetTopSpeed()
-    {
-        // TODO: get top speed from surface player is standing on, and assign to player
     }
 
     /// <summary>
@@ -245,15 +236,22 @@ public class Player : MonoBehaviour
 
     private void GetInput()
     {
+        // Check if player pressed Respawn button
+        respawn.HandleRespawn();
+
         // Get player input (horizontal)
         horizontalInput = Input.GetAxis("Horizontal");
         currentState.direction = GetDirection(horizontalInput) ?? previousState.direction;
         currentState.oppDirection = GetDirection(-1 * horizontalInput) ?? previousState.oppDirection;
 
+        // Grab object
         grabbing = Input.GetButton("Grab");
 
-        //Checks jump key
+        // Checks jump key
         JumpDown();
+
+        // Update equipped surface based on input
+        EquipSurface();
     }
 
     private void SetCurrentSurroundings()
@@ -349,8 +347,6 @@ public class Player : MonoBehaviour
     /// <param name="horizontalInput">Horizontal input</param>
     private void HandleMovement(float horizontalInput)
     {
-        InitializeSurfaceSpeeds();
-
         float distAway;
         float moveSpeed = currentState.defaultSpeed;
         switch (currentState.action)
@@ -558,15 +554,8 @@ public class Player : MonoBehaviour
         }
     }
 
-    // If R is pressed, the player will respawn at the position of empty game object "Spawn Point"
-    private void HandleRespawn()
-    {
-        // respawn.manualRespawn();
-        respawn.manualReset();
-    }
-
     //Function to hold surface changing code
-    private void HandleSurface()
+    private void EquipSurface()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {

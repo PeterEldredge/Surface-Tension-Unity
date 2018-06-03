@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class Respawn : MonoBehaviour {
 
-    public void manualReset()
+    public void HandleRespawn()
     {
         if (Input.GetButtonDown("Restart"))
         {
