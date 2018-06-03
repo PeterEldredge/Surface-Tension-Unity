@@ -162,7 +162,7 @@ public class Player : MonoBehaviour
         CleanUp();
 
         //Gets all player inputs
-        GetInput();
+        HandleInput();
 
         // Set the player's current surrondings
         SetCurrentSurroundings();
@@ -179,6 +179,7 @@ public class Player : MonoBehaviour
         // Animate the character
         HandleAnimation();
 
+        // Bounce if landed on bouncy surface
         BounceCheck();
 
         currentState.velocity = pBody.velocity;
@@ -234,7 +235,10 @@ public class Player : MonoBehaviour
         return GameController.material.NONE;
     }
 
-    private void GetInput()
+    /// <summary>
+    /// Handle player input
+    /// </summary>
+    private void HandleInput()
     {
         // Check if player pressed Respawn button
         respawn.HandleRespawn();
@@ -254,44 +258,56 @@ public class Player : MonoBehaviour
         EquipSurface();
     }
 
+    /// <summary>
+    /// Performs raycasts to check surfaces player is contacting, and stores those GameObjects in currentState
+    /// </summary>
     private void SetCurrentSurroundings()
     {
         float appliedLeniency = 0;     
 
-        if (grabbing) // If the player is currently holding the grab button, apply leniency to the object cast check
-        {
+        // If the player is currently holding the grab button, apply leniency to the object cast check
+        if (grabbing) {
             appliedLeniency = grabLeniency;
         }
+
+        // Check on Objects layer
         currentState.objFaceDir = rayCheck(currentState.direction, "Object", appliedLeniency);
         currentState.objOppDir = rayCheck(currentState.oppDirection, "Object", appliedLeniency);
 
+        // Check on Ground layer
         currentState.surfFaceDir = rayCheck(currentState.direction, "Ground", 0);
         currentState.surfOppDir = rayCheck(currentState.oppDirection, "Ground", 0);
 
         currentState.surfGround = rayCheck(Direction.DOWN, null, 0);
     }
 
-    // Collects/sets action for the frame
+    /// <summary>
+    /// Collects/sets action for the frame
+    /// </summary>
     private void SetCurrentAction()
     {
         if (currentState.objFaceDir && (GetTag(currentState.surfGround) == "Slope" || GetTag(currentState.surfGround) == "Ground") && grabbing && horizontalInput != 0)
         {
-            currentState.action = Action.PUSHING; // The player is pushing an object
-            currentState.grabbedObject = currentState.objFaceDir; // Finds the object the player is currently grabbing
+            currentState.action = Action.PUSHING;
+            
+            // Get pushed object
+            currentState.grabbedObject = currentState.objFaceDir; 
         }
         else if (currentState.objOppDir && (GetTag(currentState.surfGround) == "Ground") && grabbing && horizontalInput != 0)
         {
-            currentState.action = Action.PULLING; // The player is pulling an object
+            currentState.action = Action.PULLING;
+            
+            // Get pulled object
             currentState.grabbedObject = currentState.objOppDir;
         }
         else if (GetTag(currentState.surfFaceDir) == "Slope" && currentState.surfGround)
         {
-            currentState.action = Action.UPSLOPE; // The player is walking up a slope
+            currentState.action = Action.UPSLOPE;
             currentState.grabbedObject = null;
         }
         else if ((currentState.objFaceDir || currentState.surfFaceDir) || objectAgainstWall)
         {
-            currentState.action = Action.AGAINSTWALL; // The player is agaist a wall
+            currentState.action = Action.AGAINSTWALL;
             currentState.grabbedObject = null;
         }
         else
@@ -300,7 +316,7 @@ public class Player : MonoBehaviour
             currentState.grabbedObject = null;
         }
 
-        //Sets if the object is against a wall in the direction the player is pushing it
+        // Check if pushing object against wall
         if (currentState.action == Action.PUSHING)
         {
             if (currentState.direction == Direction.LEFT)
@@ -330,6 +346,9 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Trigger a bounce if player lands on bouncy surface
+    /// </summary>
     private void BounceCheck()
     {
         if (GetMaterial(currentState.surfGround) == GameController.material.BOUNCE &&
@@ -378,7 +397,7 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
-    /// Animate player based on horizontal input
+    /// Animate player based on input
     /// </summary>
     private void HandleAnimation()
     {
@@ -469,7 +488,9 @@ public class Player : MonoBehaviour
         else return null;
     }
 
-    //Check to see if all stuck conditions are met, if so it applies the jump velocity downwards to the player
+    /// <summary>
+    /// If player is stuck above ground, applies the jump velocity downwards to dislodge player
+    /// </summary>
     private void IsStuck()
     {
         if ((currentState.surfFaceDir || currentState.objFaceDir) && (currentState.surfOppDir || currentState.objOppDir) && Mathf.Abs(pBody.velocity.y) <= .1f && !currentState.surfGround)
@@ -478,6 +499,13 @@ public class Player : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Performs raycast alongside player collider
+    /// </summary>
+    /// <param name="direction">Direction of raycast</param>
+    /// <param name="layerMaskName">Layer to check for collision</param>
+    /// <param name="leniency">Leniency applied (nonzero if player is grabbing object)</param>
+    /// <returns>Returns: Any GameObject it collides with</returns>
     private GameObject rayCheck(Direction direction, string layerMaskName, float leniency)
     {
         float distance;
@@ -485,7 +513,7 @@ public class Player : MonoBehaviour
         Vector2 rayDirection;
         RaycastHit2D raycast;
 
-        if (direction != Direction.DOWN) // Means that the direction is to the sides, so we do a raycast starting from the bottom of the desired side that shoots upwards
+        if (direction != Direction.DOWN) 
         {
             BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
