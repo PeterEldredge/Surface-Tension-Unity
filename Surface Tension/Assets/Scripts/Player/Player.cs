@@ -512,14 +512,35 @@ public class Player : MonoBehaviour
         Vector2 origin;
         Vector2 rayDirection;
         RaycastHit2D raycast;
+        BoxCollider2D collider = GetComponent<BoxCollider2D>();
 
-        if (direction != Direction.DOWN) 
-        {
-            BoxCollider2D collider = GetComponent<BoxCollider2D>();
+        if (direction == Direction.DOWN) {
+            // Calculate bottom of player:
+            // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
+            float playerBottom = collider.bounds.min.y - collider.edgeRadius - .05f;
+            // float playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2F);
 
+            // Calculate left edge of player:
+            // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
+            float playerXMin = collider.bounds.min.x - (collider.edgeRadius / 2);
+            Debug.Log("RayCast Down: Player Bottom: " + playerBottom);
+
+            // Create vector positioned at bottom of player sprite
+            origin = new Vector2(playerXMin, playerBottom);
+
+            rayDirection = Vector2.right;
+
+            distance = collider.bounds.size.x + collider.edgeRadius;
+
+            // Ignore layermask in case player standing on box
+            raycast = Physics2D.Raycast(origin, rayDirection, distance);
+        }
+        else {
             // Calculate bottom of player:
             // Bottom of BoxCollider
-            float playerYMin = collider.bounds.center.y - (collider.bounds.size.y / 2f) - (collider.edgeRadius / 2f);
+            float playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2f);
+            Debug.Log("RayCast Horizontal: Player Bottom: " + playerBottom);
+            
 
             // Calculate distance to left edge of player:
             // Half the collider + the radius + a little
@@ -537,35 +558,13 @@ public class Player : MonoBehaviour
             }
 
             // Create vector positioned at bottom of player sprite
-            origin = new Vector2(playerXMin, playerYMin);
+            origin = new Vector2(playerXMin, playerBottom);
 
             rayDirection = Vector2.up;
 
             distance = collider.bounds.size.y + collider.edgeRadius;
             
             raycast = Physics2D.Raycast(origin, rayDirection, distance, LayerMask.GetMask(layerMaskName));
-        }
-        else
-        {
-            BoxCollider2D collider = GetComponent<BoxCollider2D>();
-
-            // Calculate bottom of player:
-            // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-            float playerHeight = collider.bounds.size.y;
-            float playerBottom = collider.bounds.center.y - (playerHeight / 2F) - collider.edgeRadius - .05f;
-
-            // Calculate left edge of player:
-            // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
-            float playerXMin = collider.bounds.center.x - (collider.bounds.size.x / 2) - (collider.edgeRadius / 2);
-
-            // Create vector positioned at bottom of player sprite
-            origin = new Vector2(playerXMin, playerBottom);
-
-            rayDirection = Vector2.right;
-
-            distance = collider.bounds.size.x + collider.edgeRadius;
-
-            raycast = Physics2D.Raycast(origin, rayDirection, distance);
         }
         Debug.DrawRay(origin, rayDirection * distance, Color.magenta);
         if (raycast.collider != null)
