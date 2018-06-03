@@ -36,7 +36,12 @@ public class Player : MonoBehaviour
     /// <summary>
     /// An additional value added on to the origin of a ray cast to make grab distances a little more lenient in certain cases
     /// </summary>
-    public float grabLeniency;
+    public float grabRaycastLeniency;
+
+    /// <summary>
+    /// Padding value applied when performing ground raycast
+    /// </summary>
+    public float groundRaycastLeniency;
 
     /// <summary>
     /// If true, on the next fixed frame the maxHeightVelocity will be applied to the player
@@ -263,22 +268,23 @@ public class Player : MonoBehaviour
     /// </summary>
     private void SetCurrentSurroundings()
     {
-        float appliedLeniency = 0;     
+        float appliedGrabLeniency = 0;     
 
         // If the player is currently holding the grab button, apply leniency to the object cast check
         if (grabbing) {
-            appliedLeniency = grabLeniency;
+            appliedGrabLeniency = grabRaycastLeniency;
         }
 
-        // Check on Objects layer
-        currentState.objFaceDir = rayCheck(currentState.direction, "Object", appliedLeniency);
-        currentState.objOppDir = rayCheck(currentState.oppDirection, "Object", appliedLeniency);
+        // Check for left/right collisions on Objects layer
+        currentState.objFaceDir = RayCheck(currentState.direction, "Object", appliedGrabLeniency);
+        currentState.objOppDir = RayCheck(currentState.oppDirection, "Object", appliedGrabLeniency);
 
-        // Check on Ground layer
-        currentState.surfFaceDir = rayCheck(currentState.direction, "Ground", 0);
-        currentState.surfOppDir = rayCheck(currentState.oppDirection, "Ground", 0);
+        // Check for left/right collisions on Ground layer
+        currentState.surfFaceDir = RayCheck(currentState.direction, "Ground", 0);
+        currentState.surfOppDir = RayCheck(currentState.oppDirection, "Ground", 0);
 
-        currentState.surfGround = rayCheck(Direction.DOWN, null, 0);
+        // Check surface below player on both layers
+        currentState.surfGround = RayCheck(Direction.DOWN, null, groundRaycastLeniency);
     }
 
     /// <summary>
@@ -504,9 +510,9 @@ public class Player : MonoBehaviour
     /// </summary>
     /// <param name="direction">Direction of raycast</param>
     /// <param name="layerMaskName">Layer to check for collision</param>
-    /// <param name="leniency">Leniency applied (nonzero if player is grabbing object)</param>
+    /// <param name="leniency">Leniency applied for ground/object raycasts (zero unless direction = down or pressing Grab)</param>
     /// <returns>Returns: Any GameObject it collides with</returns>
-    private GameObject rayCheck(Direction direction, string layerMaskName, float leniency)
+    private GameObject RayCheck(Direction direction, string layerMaskName, float leniency)
     {
         float distance;
         Vector2 origin;
@@ -516,14 +522,13 @@ public class Player : MonoBehaviour
 
         if (direction == Direction.DOWN) {
             // Calculate bottom of player:
-            // Bottom of BoxCollider + edgeRadius around collider (subtraction because in downward direction)
-            float playerBottom = collider.bounds.min.y - collider.edgeRadius - .05f;
-            // float playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2F);
+            // Bottom of BoxCollider + edgeRadius around collider + leniency (subtraction because in downward direction)
+            float playerBottom = collider.bounds.min.y - collider.edgeRadius - leniency;
 
             // Calculate left edge of player:
             // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
             float playerXMin = collider.bounds.min.x - (collider.edgeRadius / 2);
-            Debug.Log("RayCast Down: Player Bottom: " + playerBottom);
+            
 
             // Create vector positioned at bottom of player sprite
             origin = new Vector2(playerXMin, playerBottom);
@@ -539,8 +544,6 @@ public class Player : MonoBehaviour
             // Calculate bottom of player:
             // Bottom of BoxCollider
             float playerBottom = collider.bounds.min.y - (collider.edgeRadius / 2f);
-            Debug.Log("RayCast Horizontal: Player Bottom: " + playerBottom);
-            
 
             // Calculate distance to left edge of player:
             // Half the collider + the radius + a little
