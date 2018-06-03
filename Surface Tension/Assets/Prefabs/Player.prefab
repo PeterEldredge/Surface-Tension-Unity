@@ -155,7 +155,7 @@ MonoBehaviour:
   downGravity: 3
   grabRaycastLeniency: 0.05
   groundRaycastLeniency: 0.05
-  equippedMaterial: 0
+  equippedMaterial: 1
 --- !u!114 &114845219007046008
 MonoBehaviour:
   m_ObjectHideFlags: 1

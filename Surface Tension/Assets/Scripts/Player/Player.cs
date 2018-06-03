@@ -161,7 +161,6 @@ public class Player : MonoBehaviour
     void Update()
     {
         objectAgainstWall = false;
-        // grabbing = false;
 
         HandleInput();
 
@@ -204,35 +203,7 @@ public class Player : MonoBehaviour
         InitializeSurfaceSpeeds();
     }
 
-    /// <summary>
-    /// Gets the tag of a Game Object
-    /// </summary>
-    private string GetTag(GameObject gameObject)
-    {
-        if (gameObject != null)
-        {
-            return gameObject.tag;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Gets the material of a Game Object
-    /// </summary>
-    private GameController.material GetMaterial(GameObject gameObject)
-    {
-        if (gameObject)
-        {
-            if (gameObject.layer == LayerMask.NameToLayer("Ground"))
-            {
-                return gameObject.GetComponent<SurfaceMaterial>().type;
-            }
-        }
-        return GameController.material.NONE;
-    }
+    
 
     /// <summary>
     /// Handle player input
@@ -309,7 +280,7 @@ public class Player : MonoBehaviour
             currentState.grabbedObject = null;
         }
         // Against wall
-        else if ((currentState.objFaceDir || currentState.surfFaceDir) || objectAgainstWall)
+        else if ((currentState.objFaceDir || currentState.surfFaceDir))
         {
             currentState.action = Action.AGAINSTWALL;
             currentState.grabbedObject = null;
@@ -479,19 +450,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Returns direction of given movement
-    /// </summary>
-    /// <param name="movement">Player movement</param>
-    private Direction? GetDirection(float movement) {
-        if(movement > 0) {
-            return Direction.RIGHT;
-        }
-        else if(movement < 0) {
-            return Direction.LEFT;
-        }
-        else return null;
-    }
+    
 
     /// <summary>
     /// If player is stuck above ground, applies the jump velocity downwards to dislodge player
@@ -604,5 +563,49 @@ public class Player : MonoBehaviour
         {
             equippedMaterial = GameController.material.STICK;
         }
+    }
+
+    /// <summary>
+    /// Gets the tag of a Game Object
+    /// </summary>
+    private string GetTag(GameObject gameObject)
+    {
+        if (gameObject != null)
+        {
+            return gameObject.tag;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Gets the material of a Game Object
+    /// </summary>
+    private GameController.material GetMaterial(GameObject gameObject)
+    {
+        if (gameObject)
+        {
+            if (gameObject.layer == LayerMask.NameToLayer("Ground"))
+            {
+                return gameObject.GetComponent<SurfaceMaterial>().type;
+            }
+        }
+        return GameController.material.NONE;
+    }
+
+    /// <summary>
+    /// Returns direction of given movement
+    /// </summary>
+    /// <param name="movement">Player movement</param>
+    private Direction? GetDirection(float movement) {
+        if(movement > 0) {
+            return Direction.RIGHT;
+        }
+        else if(movement < 0) {
+            return Direction.LEFT;
+        }
+        else return null;
     }
 }
