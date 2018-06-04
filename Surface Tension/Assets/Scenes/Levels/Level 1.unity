@@ -198,7 +198,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1618623224532748, guid: 24bf8d962d22c4cf0b54cc56a6a318dd, type: 2}
       propertyPath: m_TagString
-      value: Slope
+      value: Ground
       objectReference: {fileID: 0}
     - target: {fileID: 23606928750278246, guid: 24bf8d962d22c4cf0b54cc56a6a318dd,
         type: 2}
@@ -812,7 +812,7 @@ GameObject:
   - component: {fileID: 880867419}
   m_Layer: 8
   m_Name: Second Hurdle
-  m_TagString: Slope
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1348,7 +1348,7 @@ GameObject:
   - component: {fileID: 1441372879}
   m_Layer: 8
   m_Name: First Hurdle
-  m_TagString: Slope
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1598,15 +1598,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114845219007046008, guid: 3411fe3093a12e1409be49293242fb7c,
-        type: 2}
-      propertyPath: spawnPoint
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 1855434506091496, guid: 3411fe3093a12e1409be49293242fb7c, type: 2}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3411fe3093a12e1409be49293242fb7c, type: 2}
   m_IsPrefabParent: 0
@@ -1667,7 +1658,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1618623224532748, guid: 24bf8d962d22c4cf0b54cc56a6a318dd, type: 2}
       propertyPath: m_TagString
-      value: Slope
+      value: Ground
       objectReference: {fileID: 0}
     - target: {fileID: 23606928750278246, guid: 24bf8d962d22c4cf0b54cc56a6a318dd,
         type: 2}

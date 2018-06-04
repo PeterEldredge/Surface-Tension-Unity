@@ -280,7 +280,7 @@ public class Player : MonoBehaviour
             currentState.grabbedObject = null;
         }
         // Against wall
-        else if ((currentState.objFaceDir || currentState.surfFaceDir))
+        else if (currentState.objFaceDir || currentState.surfFaceDir)
         {
             currentState.action = Action.AGAINSTWALL;
             currentState.grabbedObject = null;
@@ -291,6 +291,8 @@ public class Player : MonoBehaviour
             currentState.action = Action.NORMAL;
             currentState.grabbedObject = null;
         }
+
+        Debug.Log(currentState.action);
 
         // Check if pushing object against wall
         if (currentState.action == Action.PUSHING)
@@ -400,10 +402,11 @@ public class Player : MonoBehaviour
         {
             applyMaxUpwards = true;
         }
-        if (Input.GetButtonUp("Jump") && lastGroundMat != GameController.material.BOUNCE)
+        // Variable jump RIP
+        /*if (Input.GetButtonUp("Jump") && lastGroundMat != GameController.material.BOUNCE)
         {
             applyMinUpwards = true;
-        }
+        }*/
     }
 
     /// <summary>
@@ -424,14 +427,15 @@ public class Player : MonoBehaviour
             }
             applyMaxUpwards = false;
         }
-        else if (applyMinUpwards)
+        // Variable jump RIP
+        /*else if (applyMinUpwards)
         {
             if (minHeightVelocity < pBody.velocity.y)
             {
                 pBody.velocity = new Vector2(pBody.velocity.x, minHeightVelocity);
             }
             applyMinUpwards = false;
-        }
+        }*/
 
         if (!currentState.surfGround)
         {
@@ -490,11 +494,17 @@ public class Player : MonoBehaviour
             playerBottom = collider.bounds.min.y - collider.edgeRadius - leniency;
 
             // Calculate left edge of player (don't need leniency here):
-            // Left edge of BoxCollider + 1/2 of edgeRadius (subtraction because in leftward direction)
-            originXPos = collider.bounds.min.x - (collider.edgeRadius / 2);
-
-            // Create vector positioned at bottom of player sprite
-            rayDirection = Vector2.right;
+            // Edge of BoxCollider + 1/2 of edgeRadius
+            // Starts on the side opposite the direction the player is facing
+            if (currentState.direction == Direction.RIGHT)
+            {
+                originXPos = collider.bounds.min.x - (collider.edgeRadius / 2);
+                rayDirection = Vector2.right;
+            } else
+            {
+                originXPos = collider.bounds.max.x + (collider.edgeRadius / 2);
+                rayDirection = Vector2.left;
+            }
 
             // Distance = width + edge radius
             rayDistance = collider.bounds.size.x + collider.edgeRadius;
