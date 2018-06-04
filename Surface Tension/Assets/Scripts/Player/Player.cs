@@ -384,9 +384,13 @@ public class Player : MonoBehaviour
                 moveSpeed = 0;
                 break;
         }
-        if (moveSpeed < Mathf.Abs(previousState.velocity.x) && maintainVelocity)
+        if (moveSpeed < Mathf.Abs(previousState.velocity.x) && maintainVelocity) //&& currentState.action != Action.AGAINSTWALL)
         {
             moveSpeed = previousState.velocity.x;
+        }
+        else
+        {
+            maintainVelocity = false;
         }
         pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
     }
