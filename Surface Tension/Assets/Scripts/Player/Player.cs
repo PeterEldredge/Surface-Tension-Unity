@@ -404,8 +404,8 @@ public class Player : MonoBehaviour
         bool pushing = currentState.action == Action.PUSHING;
         bool pulling = currentState.action == Action.PULLING;
 
-        bool jumping = pBody.velocity.y > .5f;
-        bool falling = pBody.velocity.y < -.5f;
+        bool jumping = pBody.velocity.y > 2f;
+        bool falling = pBody.velocity.y < -2f;
         
         if (!jumping && !falling && !currentState.surfGround)
         {
