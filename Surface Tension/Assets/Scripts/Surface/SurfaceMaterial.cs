@@ -67,7 +67,7 @@ public class SurfaceMaterial : MonoBehaviour
             if (Input.GetMouseButton(0))
             {
                 ChangeMaterial();
-                SetSurfaceTiling();
+                
             }
             // Right click
             else if (Input.GetMouseButton(1))
@@ -75,7 +75,7 @@ public class SurfaceMaterial : MonoBehaviour
                 GetComponent<Renderer>().material = ChosenSurface[3];
                 type = GameController.material.NONE;
                 InitializeSurfaceSpeeds(GameController.material.NONE);
-                SetSurfaceTiling();
+                SetTiling();
             }
         }
     }
@@ -89,12 +89,15 @@ public class SurfaceMaterial : MonoBehaviour
         {
             case GameController.material.BOUNCE:
                 GetComponent<Renderer>().material = ChosenSurface[0];
+                SetSurfaceTiling();
                 break;
             case GameController.material.SLIP:
                 GetComponent<Renderer>().material = ChosenSurface[1];
+                SetTiling();
                 break;
             case GameController.material.STICK:
                 GetComponent<Renderer>().material = ChosenSurface[2];
+                SetSurfaceTiling();
                 break;
         }
         type = player.equippedMaterial;
