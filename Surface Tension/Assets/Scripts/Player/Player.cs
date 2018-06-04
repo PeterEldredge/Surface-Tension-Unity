@@ -399,10 +399,15 @@ public class Player : MonoBehaviour
         bool pushing = currentState.action == Action.PUSHING;
         bool pulling = currentState.action == Action.PULLING;
 
+        bool jumping = pBody.velocity.y > 0;
+        bool falling = pBody.velocity.y < 0;
+
         GetComponent<Animator>().SetInteger("Direction", (int)currentState.direction);
         GetComponent<Animator>().SetBool("Moving", moving);
         GetComponent<Animator>().SetBool("Pushing", pushing);
         GetComponent<Animator>().SetBool("Pulling", pulling);
+        GetComponent<Animator>().SetBool("Jumping", jumping);
+        GetComponent<Animator>().SetBool("Falling", falling);
         
         if(currentState.direction.Equals(Direction.LEFT)) {
             GetComponent<SpriteRenderer>().flipX = true;
