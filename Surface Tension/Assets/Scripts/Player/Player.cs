@@ -397,10 +397,13 @@ public class Player : MonoBehaviour
     private void HandleAnimation()
     {
         moving = GetDirection(horizontalInput * pBody.velocity.x) != null;
+        bool pushing = currentState.action == Action.PUSHING;
+        bool pulling = currentState.action == Action.PULLING;
 
         GetComponent<Animator>().SetInteger("Direction", (int)currentState.direction);
         GetComponent<Animator>().SetBool("Moving", moving);
-        GetComponent<Animator>().SetBool("Pushing", currentState.action == Action.PUSHING);
+        GetComponent<Animator>().SetBool("Pushing", pushing);
+        GetComponent<Animator>().SetBool("Pulling", pulling);
         
         if(currentState.direction.Equals(Direction.LEFT)) {
             GetComponent<SpriteRenderer>().flipX = true;

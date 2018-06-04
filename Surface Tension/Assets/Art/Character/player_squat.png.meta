@@ -1,14 +1,14 @@
 fileFormatVersion: 2
-guid: c7f530cac3af44173a79959acebd971b
-timeCreated: 1527119140
+guid: 15033c976b41644fc9ff9a10808d863c
+timeCreated: 1528074753
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: new idle sprite sheet_0
-    21300002: new idle sprite sheet_1
-    21300004: new idle sprite sheet_2
-    21300006: new idle sprite sheet_3
-    21300008: new idle sprite sheet_4
+    21300000: player_squat_0
+    21300002: player_squat_1
+    21300004: player_squat_2
+    21300006: player_squat_3
+    21300008: player_squat_4
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -104,13 +104,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: new idle sprite sheet_0
+      name: player_squat_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -118,13 +118,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: new idle sprite sheet_1
+      name: player_squat_1
       rect:
         serializedVersion: 2
-        x: 27
+        x: 64
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -132,13 +132,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: new idle sprite sheet_2
+      name: player_squat_2
       rect:
         serializedVersion: 2
-        x: 54
+        x: 128
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,13 +146,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: new idle sprite sheet_3
+      name: player_squat_3
       rect:
         serializedVersion: 2
-        x: 81
+        x: 192
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -160,13 +160,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: new idle sprite sheet_4
+      name: player_squat_4
       rect:
         serializedVersion: 2
-        x: 108
+        x: 256
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
