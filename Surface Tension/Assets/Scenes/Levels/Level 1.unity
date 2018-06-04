@@ -1148,6 +1148,16 @@ Prefab:
       propertyPath: m_Name
       value: Block
       objectReference: {fileID: 0}
+    - target: {fileID: 50092404076416782, guid: 61e600bc47ad35c448b98974b3d58a27,
+        type: 2}
+      propertyPath: m_GravityScale
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 50092404076416782, guid: 61e600bc47ad35c448b98974b3d58a27,
+        type: 2}
+      propertyPath: m_Mass
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 61e600bc47ad35c448b98974b3d58a27, type: 2}
   m_IsPrefabParent: 0

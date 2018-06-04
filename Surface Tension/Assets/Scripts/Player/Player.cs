@@ -295,8 +295,6 @@ public class Player : MonoBehaviour
             currentState.grabbedObject = null;
         }
 
-        Debug.Log(currentState.action);
-
         // Check if pushing object against wall
         if (currentState.action == Action.PUSHING)
         {
