@@ -1,15 +1,15 @@
 fileFormatVersion: 2
-guid: dbe5f5ab53f3d4029a30c420108dc0c5
-timeCreated: 1526519464
+guid: e9c4c6942c59e486bbc29225219ad81e
+timeCreated: 1528074168
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: walking sprite sheet_0
-    21300002: walking sprite sheet_1
-    21300004: walking sprite sheet_2
-    21300006: walking sprite sheet_3
-    21300008: walking sprite sheet_4
-    21300010: walking sprite sheet_5
+    21300000: player_running_0
+    21300002: player_running_1
+    21300004: player_running_2
+    21300006: player_running_3
+    21300008: player_running_4
+    21300010: player_running_5
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -36,7 +36,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: -1
     aniso: -1
     mipBias: -1
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 33
+  spritePixelsToUnits: 32
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -93,17 +93,25 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: walking sprite sheet_0
+      name: player_running_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -111,13 +119,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: walking sprite sheet_1
+      name: player_running_1
       rect:
         serializedVersion: 2
-        x: 27
+        x: 64
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -125,13 +133,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: walking sprite sheet_2
+      name: player_running_2
       rect:
         serializedVersion: 2
-        x: 54
+        x: 128
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -139,13 +147,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: walking sprite sheet_3
+      name: player_running_3
       rect:
         serializedVersion: 2
-        x: 81
+        x: 192
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -153,13 +161,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: walking sprite sheet_4
+      name: player_running_4
       rect:
         serializedVersion: 2
-        x: 108
+        x: 256
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -167,13 +175,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: walking sprite sheet_5
+      name: player_running_5
       rect:
         serializedVersion: 2
-        x: 135
+        x: 320
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

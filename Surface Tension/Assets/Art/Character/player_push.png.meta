@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 22c02e3456ea743c493a398659b421f2
-timeCreated: 1527119112
+guid: aa79605078c74477c9372430cb306810
+timeCreated: 1528074245
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: pushing sprite sheet_0
-    21300002: pushing sprite sheet_1
-    21300004: pushing sprite sheet_2
+    21300000: player_push_0
+    21300002: player_push_1
+    21300004: player_push_2
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: pushing sprite sheet_0
+      name: player_push_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -116,13 +116,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: pushing sprite sheet_1
+      name: player_push_1
       rect:
         serializedVersion: 2
-        x: 27
+        x: 64
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -130,13 +130,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: pushing sprite sheet_2
+      name: player_push_2
       rect:
         serializedVersion: 2
-        x: 54
+        x: 128
         y: 0
-        width: 27
-        height: 33
+        width: 64
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
