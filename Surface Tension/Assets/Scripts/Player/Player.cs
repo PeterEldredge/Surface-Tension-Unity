@@ -61,14 +61,19 @@ public class Player : MonoBehaviour
     private bool objectAgainstWall = false;
 
     /// <summary>
-    /// The material of the last ground surface interacted with
-    /// </summary>
-    private GameController.material lastGroundMat = GameController.material.NONE;
-
-    /// <summary>
     /// If true, the player is currently holding the grab button
     /// </summary>
     private bool grabbing = false;
+
+    /// <summary>
+    /// If true, maintain the player's horizontal velocity
+    /// </summary>
+    private bool maintainVelocity = false;
+
+    /// <summary>
+    /// The material of the last ground surface interacted with
+    /// </summary>
+    private GameController.material lastGroundMat = GameController.material.NONE;
 
     /// <summary>
     /// Holds the current state of the player
@@ -203,8 +208,6 @@ public class Player : MonoBehaviour
         InitializeSurfaceSpeeds();
     }
 
-    
-
     /// <summary>
     /// Handle player input
     /// </summary>
@@ -314,8 +317,19 @@ public class Player : MonoBehaviour
     /// </summary>
     private void InitializeSurfaceSpeeds()
     {
-        if(currentState.surfGround != null && LayerMask.LayerToName(currentState.surfGround.layer) == "Ground") {
-            surfaceSpeeds = currentState.surfGround.GetComponent<SurfaceMaterial>().surfaceSpeeds;
+        SurfaceMaterial groundSurface;
+        if (currentState.surfGround != null && LayerMask.LayerToName(currentState.surfGround.layer) == "Ground") {
+            groundSurface = currentState.surfGround.GetComponent<SurfaceMaterial>();
+            surfaceSpeeds = groundSurface.surfaceSpeeds;
+
+            if (groundSurface.type == GameController.material.BOUNCE)
+            {
+                maintainVelocity = true;
+            }
+            else if (groundSurface.type == GameController.material.NONE)
+            {
+                maintainVelocity = false;
+            }
 
             currentState.defaultSpeed = surfaceSpeeds.defaultSpeed;
             currentState.pushSpeed = surfaceSpeeds.pushSpeed;
@@ -370,6 +384,10 @@ public class Player : MonoBehaviour
             case Action.AGAINSTWALL:
                 moveSpeed = 0;
                 break;
+        }
+        if (moveSpeed < Mathf.Abs(previousState.velocity.x) && maintainVelocity)
+        {
+            moveSpeed = previousState.velocity.x;
         }
         pBody.velocity = new Vector2(horizontalInput * moveSpeed, pBody.velocity.y);
     }
