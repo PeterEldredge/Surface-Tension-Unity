@@ -27,7 +27,7 @@ public class GameController : MonoBehaviour {
             defaultSpeed = 4f,
             upSlopeSpeed = 2.5f,
             pushSpeed = 1.5f,
-            pullSpeed = 1.5f
+            pullSpeed = 1f
         }},
         { material.SLIP, new SurfaceSpeeds {
             defaultSpeed = 8f,

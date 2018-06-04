@@ -404,8 +404,13 @@ public class Player : MonoBehaviour
         bool pushing = currentState.action == Action.PUSHING;
         bool pulling = currentState.action == Action.PULLING;
 
-        bool jumping = pBody.velocity.y > 0;
-        bool falling = pBody.velocity.y < 0;
+        bool jumping = pBody.velocity.y > .5f;
+        bool falling = pBody.velocity.y < -.5f;
+        
+        if (!jumping && !falling && !currentState.surfGround)
+        {
+            jumping = true;
+        }
 
         GetComponent<Animator>().SetInteger("Direction", (int)currentState.direction);
         GetComponent<Animator>().SetBool("Moving", moving);
