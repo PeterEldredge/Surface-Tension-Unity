@@ -168,6 +168,12 @@ public class Player : MonoBehaviour
         objectAgainstWall = false;
 
         HandleInput();
+    }
+
+    // Update called at a fixed delta time
+    void FixedUpdate () 
+	{
+        objectAgainstWall = false;
 
         // Update data in currentState
         UpdateState();
@@ -181,11 +187,7 @@ public class Player : MonoBehaviour
 
         currentState.velocity = pBody.velocity;
         previousState = currentState;
-    }
 
-    // Update called at a fixed delta time
-    void FixedUpdate () 
-	{   
         // Handles changing y velocity
         HandleJump();
 
@@ -361,15 +363,14 @@ public class Player : MonoBehaviour
         switch (currentState.action)
         {
             case Action.PUSHING:
-                distAway = horizontalInput * currentState.pushSpeed * Time.deltaTime;
                 moveSpeed = currentState.pushSpeed;
                 if (!objectAgainstWall)
                 {
-                    currentState.grabbedObject.transform.Translate(distAway, 0, 0);
+                    currentState.grabbedObject.GetComponent<Rigidbody2D>().velocity = new Vector2(moveSpeed * horizontalInput, 0);
                 }
                 break;
             case Action.PULLING:
-                distAway = horizontalInput * currentState.pullSpeed * Time.deltaTime;
+                distAway = horizontalInput * currentState.pullSpeed * Time.fixedDeltaTime;
                 moveSpeed = currentState.pullSpeed;
                 if(!currentState.surfFaceDir && !currentState.objFaceDir)
                 {
