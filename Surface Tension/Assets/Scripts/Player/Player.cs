@@ -16,12 +16,12 @@ public class Player : MonoBehaviour
     /// <summary>
     /// The velocity that will get the player to their max jump height
     /// </summary>
-    public float maxHeightVelocity;
+    public float jumpVelocity;
 
     /// <summary>
-    /// The velocity that will get the player to their min jump height/how high they will go after releasing the jump button
+    /// The multiplier that is applied to the jumpVelocity when the player is on a bouncy surface
     /// </summary>
-    public float minHeightVelocity;
+    public float bounceMultiplier;
 
     /// <summary>
     /// The gravity scale that affects the player when their rigidbody's y velocity is greater than 0
@@ -44,16 +44,10 @@ public class Player : MonoBehaviour
     public float groundRaycastLeniency;
 
     /// <summary>
-    /// If true, on the next fixed frame the maxHeightVelocity will be applied to the player
+    /// If true, on the next fixed frame the jumpVelocity will be applied to the player
     /// Changes to true when jump button is pushed, false after velocity has been set.
     /// </summary>
     private bool applyMaxUpwards = false;
-
-    /// <summary>
-    /// If true, on the next fixed frame the minHeightVelocity will be applied to the player
-    /// Changes to true when jump button is released, false after velocity has been set
-    /// </summary>
-    private bool applyMinUpwards = false;
 
     /// <summary>
     /// If true, the object the player is currently running into is against a wall
@@ -69,11 +63,6 @@ public class Player : MonoBehaviour
     /// If true, maintain the player's horizontal velocity
     /// </summary>
     private bool maintainVelocity = false;
-
-    /// <summary>
-    /// The material of the last ground surface interacted with
-    /// </summary>
-    private GameController.material lastGroundMat = GameController.material.NONE;
 
     /// <summary>
     /// Holds the current state of the player
@@ -238,7 +227,8 @@ public class Player : MonoBehaviour
     /// </summary>
     private void SetCurrentSurroundings()
     {
-        float appliedGrabLeniency = 0;     
+        float appliedGrabLeniency = 0;
+        float normalLeniency = .05f;    
 
         // If the player is currently holding the grab button, apply leniency to the object cast check
         if (grabbing) {
@@ -246,12 +236,12 @@ public class Player : MonoBehaviour
         }
 
         // Check for left/right collisions on Objects layer
-        currentState.objFaceDir = RayCheck(currentState.direction, "Object", appliedGrabLeniency);
-        currentState.objOppDir = RayCheck(currentState.oppDirection, "Object", appliedGrabLeniency);
+        currentState.objFaceDir = RayCheck(currentState.direction, "Object", normalLeniency + appliedGrabLeniency);
+        currentState.objOppDir = RayCheck(currentState.oppDirection, "Object", normalLeniency + appliedGrabLeniency);
 
         // Check for left/right collisions on Ground layer
-        currentState.surfFaceDir = RayCheck(currentState.direction, "Ground", 0);
-        currentState.surfOppDir = RayCheck(currentState.oppDirection, "Ground", 0);
+        currentState.surfFaceDir = RayCheck(currentState.direction, "Ground", normalLeniency);
+        currentState.surfOppDir = RayCheck(currentState.oppDirection, "Ground", normalLeniency);
 
         // Check surface below player on both layers
         currentState.surfGround = RayCheck(Direction.DOWN, null, groundRaycastLeniency);
@@ -345,10 +335,17 @@ public class Player : MonoBehaviour
     {
         if (GetMaterial(currentState.surfGround) == GameController.material.BOUNCE &&
             !previousState.surfGround && 
-            Mathf.Abs(previousState.velocity.y) > 4f)
+            Mathf.Abs(previousState.velocity.y) > 5f)
         {
-            lastGroundMat = GameController.material.BOUNCE;
-            pBody.velocity = new Vector2(pBody.velocity.x, Mathf.Sqrt((upGravity * previousState.velocity.y * previousState.velocity.y) / (downGravity)) + 1f);
+            float minBounce = bounceMultiplier * jumpVelocity + .2f;
+            float calculatedBounce = Mathf.Sqrt((upGravity * previousState.velocity.y * previousState.velocity.y) / (downGravity)) + 1f;
+
+            if (calculatedBounce < minBounce)
+            {
+                calculatedBounce = minBounce;
+            }
+
+            pBody.velocity = new Vector2(pBody.velocity.x, calculatedBounce);
         }
     }
 
@@ -384,9 +381,10 @@ public class Player : MonoBehaviour
                 moveSpeed = 0;
                 break;
         }
-        if (moveSpeed < Mathf.Abs(previousState.velocity.x) && maintainVelocity) //&& currentState.action != Action.AGAINSTWALL)
+        // If we are maintaining velocity...
+        if (Mathf.Abs(moveSpeed) < Mathf.Abs(previousState.velocity.x) && maintainVelocity)
         {
-            moveSpeed = previousState.velocity.x;
+            moveSpeed = Mathf.Abs(previousState.velocity.x);
         }
         else
         {
@@ -404,8 +402,8 @@ public class Player : MonoBehaviour
         bool pushing = currentState.action == Action.PUSHING;
         bool pulling = currentState.action == Action.PULLING;
 
-        bool jumping = pBody.velocity.y > 2f;
-        bool falling = pBody.velocity.y < -2f;
+        bool jumping = pBody.velocity.y > 1f;
+        bool falling = pBody.velocity.y < -1f;
         
         if (!jumping && !falling && !currentState.surfGround)
         {
@@ -436,11 +434,6 @@ public class Player : MonoBehaviour
         {
             applyMaxUpwards = true;
         }
-        // Variable jump RIP
-        /*if (Input.GetButtonUp("Jump") && lastGroundMat != GameController.material.BOUNCE)
-        {
-            applyMinUpwards = true;
-        }*/
     }
 
     /// <summary>
@@ -452,25 +445,17 @@ public class Player : MonoBehaviour
         {
             if (GetMaterial(currentState.surfGround) == GameController.material.BOUNCE)
             {
-                // If jumping on a bouncy surface, double maxHeightVelocity
-                pBody.velocity = new Vector2(pBody.velocity.x, 1.4f * maxHeightVelocity);
+                // If jumping on a bouncy surface, apply the bounce
+                pBody.velocity = new Vector2(pBody.velocity.x, bounceMultiplier * jumpVelocity);
             }
             else
             {
-                pBody.velocity = new Vector2(pBody.velocity.x, maxHeightVelocity);
+                pBody.velocity = new Vector2(pBody.velocity.x, jumpVelocity);
             }
             applyMaxUpwards = false;
         }
-        // Variable jump RIP
-        /*else if (applyMinUpwards)
-        {
-            if (minHeightVelocity < pBody.velocity.y)
-            {
-                pBody.velocity = new Vector2(pBody.velocity.x, minHeightVelocity);
-            }
-            applyMinUpwards = false;
-        }*/
 
+        // Messing with gravity so that jump feels good and the bouncy surface is a pain in the ass
         if (!currentState.surfGround)
         {
             if (pBody.velocity.y > 0)
@@ -550,7 +535,7 @@ public class Player : MonoBehaviour
 
             // Calculate distance to left edge of player:
             // Half the collider + the radius + leniency
-            originXPos = (collider.bounds.size.x / 2) + (collider.edgeRadius) + .05f + leniency;
+            originXPos = (collider.bounds.size.x / 2) + (collider.edgeRadius) + leniency;
 
             // Left or Right determines the side of the player the ray is being shot from
             if (direction == Direction.LEFT) {
@@ -577,14 +562,9 @@ public class Player : MonoBehaviour
             raycast = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance);
         }
         Debug.DrawRay(rayOrigin, rayDirection * rayDistance, Color.magenta);
-        
-        
+              
         // Check for collision
         if (raycast.collider != null) {
-            if (direction == Direction.DOWN && layerMaskName != "Object") {
-                lastGroundMat = GetMaterial(raycast.collider.gameObject);
-            }
-
             return raycast.collider.gameObject;
         }
         else {
