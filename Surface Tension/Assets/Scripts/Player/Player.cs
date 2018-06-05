@@ -561,7 +561,6 @@ public class Player : MonoBehaviour
         else {
             raycast = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance);
         }
-        Debug.DrawRay(rayOrigin, rayDirection * rayDistance, Color.magenta);
               
         // Check for collision
         if (raycast.collider != null) {
