@@ -174,14 +174,14 @@ public class Player : MonoBehaviour
         // Bounce if landed on bouncy surface
         BounceCheck();
 
-        currentState.velocity = pBody.velocity;
-        previousState = currentState;
-
-        // Handles changing y velocity
+        // Applies Y velocity
         HandleJump();
 
         // Check if stuck 
         IsStuck();
+
+        currentState.velocity = pBody.velocity;
+        previousState = currentState;
     }
 
     /// <summary>
