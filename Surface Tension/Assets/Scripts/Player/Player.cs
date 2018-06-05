@@ -337,7 +337,9 @@ public class Player : MonoBehaviour
             !previousState.surfGround && 
             Mathf.Abs(previousState.velocity.y) > 5f)
         {
+            // The .2f is added to account for some inconsistency in the way I set up bounce
             float minBounce = bounceMultiplier * jumpVelocity + .2f;
+	    // The 1 added on is temporary, it is there to account for the extra velocity the player travels in between frames
             float calculatedBounce = Mathf.Sqrt((upGravity * previousState.velocity.y * previousState.velocity.y) / (downGravity)) + 1f;
 
             if (calculatedBounce < minBounce)
