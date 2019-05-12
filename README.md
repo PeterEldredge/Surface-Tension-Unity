@@ -27,6 +27,7 @@ First download the repository as a zip. Then extract all files from the zip and 
 
 Additionally, you can play the game at this link:
 https://petereldredge.itch.io/surfacetensiongame
-This is not the reccomended way to play it however, as there is a graphical issue in browsers that are not chrome. Additionally, the controls may feel less responsive.
+
+This is not the reccomended way to play it however, as there is a graphical issue in non chrome browsers. Additionally, the controls may feel less responsive.
 
 
