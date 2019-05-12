@@ -25,3 +25,8 @@ Move the player left and right with A and D. Jump with Spacebar. Grab objects wi
 How to play it:
 First download the repository as a zip. Then extract all files from the zip and open the project in Unity. In Unity you can click “File” and then click “Build and Run” to start up a build of the game.
 
+Additionally, you can play the game at this link:
+https://petereldredge.itch.io/surfacetensiongame
+This is not the reccomended way to play it however, as there is a graphical issue in browsers that are not chrome. Additionally, the controls may feel less responsive.
+
+
